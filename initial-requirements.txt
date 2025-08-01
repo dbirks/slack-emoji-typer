@@ -1,0 +1,429 @@
+# Slack Emoji Typer CLI – Project Overview
+
+This project is a cross-platform CLI tool (built with **Deno** and TypeScript) that lets a user **add letter-reaction emoji** to a specific Slack message by typing on their keyboard. The user supplies a Slack message URL, and the CLI will display the message content and then enter an interactive mode. In this mode, each letter key pressed will trigger an API call to **Slack’s Web API** to react to the message with the corresponding letter emoji (like :alphabet-white-a: for "A", etc.). The user can also press **Backspace** to remove the last emoji they added, and use a special key (e.g. Ctrl+T or Tab) to **toggle the emoji style** (white or orange letter blocks, or an alternating mode). The program will handle errors robustly (e.g. invalid Slack token, trying to delete a reaction that isn’t there, etc.) and exit cleanly when the user is done (for example, on pressing **Enter** or **Esc**).
+
+Below, we break down the implementation details, including Deno project setup, Slack API integration, interactive CLI UI with Ink (React-based CLI library), and CI/CD automation with GitHub Actions for building and releasing a single-binary executable for Linux, macOS (both Intel and Apple Silicon), and Windows.
+
+## 1. Project Setup (Deno + TypeScript)
+
+**Initialize a Deno project**: Use Deno’s built-in initializer to scaffold the project structure. In an empty project directory, run:
+
+deno init --yes
+
+This creates a basic main.ts and main\_test.ts, plus a deno.json config. The config will be important for setting TypeScript options and managing dependencies.
+
+**Deno Configuration (deno.json)**: Open the generated **deno.json** and configure it for our needs:
+
+* **TypeScript & JSX**: We’ll use **JSX** for React components (Ink is React-based). Enable the React JSX transform in the compiler options. For example:
+
+{
+ "compilerOptions": {
+ "jsx": "react-jsx",
+ "jsxImportSource": "react"
+ },
+ ...
+}
+
+This ensures that JSX syntax is compiled using React’s runtime (so we don’t have to manually import React in every file). It will automatically use the react/jsx-runtime as needed[[1]](https://docs.deno.com/runtime/reference/jsx/#:~:text=deno).
+
+* **Import mappings for npm packages**: Deno can directly import npm packages. We’ll use **Ink** (for CLI UI) and **React**. We can specify versions and map them for convenience. For instance, in deno.json add:
+
+{
+ "imports": {
+ "ink": "npm:ink@3", // Use Ink v3.x
+ "react": "npm:react@18", // React 18 for JSX runtime
+ "react-dom": "npm:react-dom@18" // (Optional, if Ink requires it)
+ },
+ ...
+}
+
+This allows us to import from "ink" and "react" without long npm URLs. Ink v3 is the latest major (as of writing) that is stable with React 17/18.
+
+* **Permissions in config (optional)**: You might list runtime permissions required (like --allow-net, etc.) in a "tasks" or in documentation. However, since we’ll compile a standalone binary with baked-in permissions, it’s not strictly needed here.
+* **Deno tasks (optional)**: Define handy tasks in deno.json for common commands. e.g.:
+
+"tasks": {
+ "dev": "deno run --allow-net --allow-env --allow-read main.ts",
+ "fmt": "deno fmt",
+ "build": "deno compile --allow-net=slack.com --allow-env=SLACK\_TOKEN --allow-read=$HOME/.netrc --target x86\_64-unknown-linux-gnu main.ts"
+}
+
+This can help during development (though our final build will be done in CI).
+
+**Dependencies**: With the above import map, we can now import required libraries in our code:
+
+* **Ink (CLI React)**: We’ll import Ink’s render, UI components like <Box> and <Text>, and hooks like useInput and useApp. For example:
+
+import { render, Box, Text, useInput, useApp } from "ink";
+import React, { useState } from "react"; // for state hooks if needed
+
+Using the **Ink** library allows us to create a rich interactive CLI with React components. Ink provides a <Box> component for layout (with border styling options) and the useInput hook to capture keyboard input.
+
+* **Slack API calls**: We won’t use an official Slack SDK (to keep things lightweight). Instead, we will use Deno’s fetch API to call Slack’s Web API endpoints directly. (If desired, one could use Slack’s Web API client from npm, but it’s not necessary and might complicate Deno compatibility.)
+* **No additional linting libraries**: We can rely on deno lint and deno fmt for code style, since Deno has these built-in (no need for ESLint or Biome). Ensure to run deno fmt on save or via CI for code consistency.
+
+## 2. Slack API Integration
+
+**Slack User Token Authentication**: This CLI uses the user’s **Slack token** (from their web session) rather than a bot token. Slack’s web app uses a token (often beginning with "xoxc-") stored in a cookie or local storage (sometimes called the **“D” token** in Slack’s cookies). The user must manually retrieve this token from their Slack session (e.g. by inspecting network calls or cookies in the browser) and provide it to the CLI.
+
+We will support two ways to supply the token securely:
+
+* **Environment Variable**: The user can set an env var (for example, SLACK\_TOKEN) to the token value. If this variable is present, our CLI will use it.
+* **.netrc file**: Alternatively, the user can store credentials in the ~/.netrc file, which is a standard mechanism for CLI tools to read credentials. For Slack, we’ll look for an entry for host slack.com. For example, the user could add a line in ~/.netrc:
+
+machine slack.com login xoxc-1234567890-abcdef-... password dummy
+
+We only actually need the token, but netrc requires a login/password pair. Here we use the token as the “login”. Our code will parse this file to find machine slack.com and extract the login (which is the token in this scheme).
+
+When the CLI starts up, it should attempt to get the token in this order: 1. Check environment variable SLACK\_TOKEN (or a specific name we document, e.g. SLACK\_USER\_TOKEN). Use it if found. 2. If not, check ~/.netrc. We can read this file (Deno.readTextFile) and parse it. Parsing .netrc is straightforward: tokens are separated by spaces or newlines. We can find the block following machine slack.com. For a quick implementation, a regex or simple state machine can extract login <token> from that section. (Alternatively, use a small npm library like netrc to parse it, but given the simplicity, custom parse is fine.) 3. If neither is provided, the CLI should exit with an error instructing the user to set their Slack token via env or netrc.
+
+**Parsing Slack Message URL**: The CLI’s single argument is a Slack message URL. We need to extract the **Channel ID** and **Message Timestamp** from this URL. Slack message links can come in two formats: - **Slack workspace URL** (typical web link): https://<workspace>.slack.com/archives/<ChannelID>/p<timestamp>. For example:
+
+https://acme-org.slack.com/archives/C12345678/p1672534987000200
+
+Here C12345678 is the channel ID, and the part after p is the message timestamp in a condensed form. - **Slack new UI link** (app.slack.com client): https://app.slack.com/client/<TeamID>/<ChannelID>/<messageID>. (This format might be seen if the user copies from the Slack desktop app or new web client.) In many cases, if the user uses the “Copy Link” feature on a message, Slack will give the archives/.../p... format. We will primarily support that format for simplicity.
+
+For the archives link: - The channel ID is the substring between /archives/ and the next /. - The message “ID” is the portion after the p. Slack represents the timestamp by removing the decimal point. The first 10 digits are the seconds and the remaining 6+ digits (usually exactly 6) are the microsecond fractional part[[2]](https://stackoverflow.com/questions/46355373/get-a-messages-ts-value-from-archives-link#:~:text=So%2C%20what%20I%27ve%20found%20is,1234567898.000159). We need to insert a . before those last 6 digits to reconstruct the original timestamp.
+
+**Example**: For p1672534987000200 – split into "1672534987" and "000200" -> timestamp becomes "1672534987.000200".
+
+We can do this programmatically in TypeScript:
+
+function parseSlackTimestamp(p: string): string {
+ if (!p.startsWith("p")) return "";
+ const raw = p.slice(1); // drop leading 'p'
+ const sec = raw.slice(0, 10);
+ const micro = raw.slice(10);
+ return sec + "." + micro;
+}
+
+We’ll extract <ChannelID> and the p<...> segment from the URL (using regex or URL API). For example:
+
+const url = new URL(slackUrl);
+const pathParts = url.pathname.split("/");
+ // e.g. ["", "archives", "C12345678", "p1672534987000200"]
+const channelId = pathParts[2];
+const messageId = pathParts[3];
+const messageTs = parseSlackTimestamp(messageId);
+
+Now channelId (like "C12345678") and messageTs ("1672534987.000200") are ready for use in API calls.
+
+**Fetching the Slack Message Content**: To display the message in the CLI, we need to fetch its text (and possibly the author). Slack’s Web API provides the [conversations.history](https://api.slack.com/methods/conversations.history) method which can retrieve messages. We will call it with parameters to fetch that specific message: - channel: the channel ID. - latest: the message timestamp. - inclusive: true (include the message with that timestamp)[[3]](https://api.slack.com/methods/conversations.history#:~:text=If%20you%20know%20the%20,value%20respectively). - limit: 1 (only one message).
+
+This call will return a JSON with an array of messages (hopefully exactly one). Example request format (GET or POST):
+
+GET https://slack.com/api/conversations.history?channel=C12345678&latest=1672534987.000200&inclusive=true&limit=1
+Authorization: Bearer xoxc-... (in header)
+
+We must include the Authorization: Bearer <token> header with the user’s token[[4]](https://api.slack.com/methods/reactions.add#:~:text=). (Slack’s API accepts token either as a header or as a token parameter; header is recommended.)
+
+If the message is in a thread (i.e., not in the channel’s main timeline), conversations.history will still retrieve it if we have the exact channel and ts. (Slack’s docs note that for thread replies one may use conversations.replies, but our approach with specific ts should get the message itself as long as we know its channel and ts.)
+
+We should handle errors here: - If the token is invalid or expired, Slack’s response will have "ok": false and an error like "invalid\_auth". Detect that and inform the user (e.g., “Authentication failed – check Slack token”). - If the user isn’t authorized to view the channel or message, errors like "channel\_not\_found" or "not\_in\_channel" could appear. Handle these by printing an error (the user might need to join the channel in Slack). - If everything is ok, we parse the JSON and extract the message’s **text**, **user ID** (the author), etc. Slack message objects have fields like text, user (user ID), and possibly username or display\_as\_bot etc. Since we have a user token, we can call an additional API to get the author’s name: - users.info with the user ID to get real name or display name. - Or use the user ID as is if we want to keep it simple, but it’s nicer to show a name. - Slack also sometimes provides a username or icons if it was a bot message, etc. For simplicity, let’s fetch users.info if needed (requires a scope users:read, but a user token likely has it for all users in workspace).
+
+Example:
+
+GET https://slack.com/api/users.info?user=U1234567
+Authorization: Bearer <token>
+
+This returns user’s profile info (real\_name, display\_name, etc.). We can use profile.display\_name or real\_name.
+
+**Slack Emoji Names for Letters**: Slack doesn’t natively include letter emojis as standard Unicode emoji (except 🅰 🅱 etc. which cover only a few letters). Instead, many Slack workspaces install custom emoji sets for alphabets (often called “alphabet-white” and “alphabet-orange/yellow” letter blocks). The user specifically mentioned emoji codes like :alphabet-white-a: or :alphabet-orange-b:. We will assume these emoji exist in the user’s workspace: - **White letters**: likely named alphabet-white-a through alphabet-white-z (and possibly alphabet-white-0…9, etc, if digits included). - **Orange letters**: likely alphabet-yellow-a through z (the user said “orange”; Slack packs often refer to them as yellow or orange). We’ll assume “orange” means the second set, so possibly alphabet-yellow-a, etc. We should confirm with the user/documentation. (For flexibility, we could allow the user to configure the prefix names, but that’s overkill here.)
+
+We will build the emoji name by prefix + letter. For example:
+
+const letter = 'A';
+const emojiName = (currentColorMode === 'white' ? 'alphabet-white-' : 'alphabet-yellow-') + letter.toLowerCase();
+
+If we implement an alternating mode, we might cycle between white and orange for each new letter.
+
+**Adding a Reaction (Slack API)**: Use the [reactions.add](https://api.slack.com/methods/reactions.add) method to post the emoji reaction. This is an HTTP POST to https://slack.com/api/reactions.add with form or JSON parameters: - channel: Channel ID - timestamp: Message TS - name: Emoji name (e.g. "alphabet-white-a"), **without** colons.
+
+And the auth header as before. For example, in pseudo-code:
+
+await fetch("https://slack.com/api/reactions.add", {
+ method: "POST",
+ headers: {
+ "Authorization": `Bearer ${token}`,
+ "Content-Type": "application/json"
+ },
+ body: JSON.stringify({ channel: channelId, timestamp: messageTs, name: emojiName })
+});
+
+Slack’s API will respond with {"ok": true} if successful[[5]](https://api.slack.com/methods/reactions.add#:~:text=Common%20successful%20response). If the reaction already exists (e.g. user tries to add the same letter twice), the response will have "ok": false, "error": "already\_reacted"[[6]](https://api.slack.com/methods/reactions.add#:~:text=Common%20error%20response). We must handle that: - If we get "already\_reacted", it means the user (with this token) already added that emoji. This can happen if the user types the same letter again without removing it first. Our CLI logic should ideally prevent duplicate adds. (If the user tries to type a word with double letters like “balloon”, we have a challenge: Slack won’t let the same user react with 🅱 twice. One workaround is to use the two different color sets for repeated letters. E.g., first “A” uses white, second “A” uses orange. If alternating mode is on, that’s naturally handled. If not, we might decide to automatically switch the color for the second identical letter. But to keep it simple, we can just warn the user or prevent the second add if the same letter is already in our current sequence.) - Other errors: "invalid\_name" if our emoji name is wrong (e.g. if the workspace doesn’t have that emoji), "channel\_not\_found", "not\_reactable", etc.[[7]](https://api.slack.com/methods/reactions.add#:~:text=Error%20Description%20)[[8]](https://api.slack.com/methods/reactions.add#:~:text=). We should at least log these errors to the console. If an add fails, we don’t add it to our local state.
+
+**Removing a Reaction**: Slack provides reactions.remove for removing a reaction (the user’s own reaction). The parameters are the same (channel, timestamp, name)[[9]](https://api.slack.com/methods/reactions.add#:~:text=). The response is similar (ok or error). If the user hasn’t added that reaction (or already removed it), Slack might return an error like "no\_reaction" or "not\_reacted" (meaning you’re trying to remove an emoji reaction that you didn’t add). We’ll handle that by, say, printing a warning and aborting the backspace action. In our use-case, we track what we added, so ideally we never call remove on something we didn’t add.
+
+**Error Handling Summary**: - **Invalid token/auth**: Print error and exit. - **Message not found or access denied**: Print error and exit. - **Emoji add fails** ("already\_reacted", "invalid\_name", etc.): Show a message to user. If it’s already\_reacted (likely due to duplicate letter), we can either ignore the input or notify “Letter already added. Use backspace to remove or use alternate color.” - **Emoji remove fails** ("no\_reaction"): If our internal state says there was a letter, but Slack says no\_reaction, it could be that someone else’s reaction with that emoji existed but not by us – however, Slack’s remove specifically removes *our* reaction. If we got no\_reaction, it implies we believed we added one but did not. This is unlikely if our state is correct. We can simply warn and not change state in that case.
+
+## 3. Interactive CLI with Ink (React)
+
+We will use **Ink** to create a nice CLI UI. Ink allows us to treat the terminal output as a React render target – we describe what to show (components, text, etc.), and it updates the terminal accordingly. This suits our need to display the Slack message and live update as keys are pressed.
+
+**Layout**: - At startup (after fetching the Slack message), we render a component (let’s call it <App>). This component’s state will include: - The Slack message data (text, author name, etc.). - The list of **letters typed** so far (for which we’ve added reactions). - The current **emoji color mode** (e.g. "white", "orange", or "alternate"). - We can use Ink’s <Box> to draw a nice border around the Slack message content. Ink’s <Box> supports borderStyle and borderColor. For example, borderStyle="round" will use rounded corners (Unicode box-drawing chars that look like curved corners)[[10]](https://www.npmjs.com/package/ink-box#:~:text=render%28%20%3CBox%20borderStyle%3D,Box%3E). We might use borderColor="cyan" or another color for style. - Inside that Box, we can show the message author and text. Perhaps:
+
+┌──────────────────────────┐ (rounded border top)
+│ Alice: Hello, world! │
+└──────────────────────────┘ (rounded border bottom)
+
+We can achieve this with:
+
+<Box borderStyle="round" padding={1}>
+ <Text><Color cyan>{authorName}:</Color> {messageText}</Text>
+</Box>
+
+(Ink v3 doesn’t require a separate <Color> component; you can use <Text color="cyan"> prop, but ensure compatibility. We might use import { Text, Box } from "ink"; and <Text color="cyan">Name</Text>.)
+
+* Below the message box, we can display a prompt or status line. For example:
+* A line showing **current mode** (e.g. “Mode: White” or “Mode: Orange” or “Mode: Alternating”).
+* A line showing the **letters typed so far**, maybe as a string or list. E.g. “Typed: A B C” or if we want to be fancy, actually display each as an emoji icon. Since we can’t easily render the actual image of the emoji in terminal, we might just show the letters themselves. We could color them to hint which set was used (e.g. white mode letters in normal white text, orange mode letters in orange text if our terminal supports that color).
+* Or simply “Reactions added: ABC” as letters.
+
+Example:
+
+<Text>
+ Mode: {modeLabel} | Typed: {typedLetters.join("")}
+</Text>
+
+Where modeLabel is “White”, “Orange”, or “Alternate”.
+
+* Finally, we might show a short instruction hint, like “(Type letters to add reactions, Backspace to undo, Ctrl+T to toggle mode, Enter to quit)”. This could be in a dim color at the bottom.
+
+**Capturing Keyboard Input with Ink**: Ink’s useInput hook is perfect for this. We use it inside our main <App> component:
+
+useInput((input, key) => {
+ if (key.ctrl && input === 't') {
+ // Toggle color mode
+ } else if (key.backspace) {
+ // Handle backspace (remove last reaction)
+ } else if (key.escape || key.return) {
+ // Exit the app
+ } else if (input.match(/^[a-zA-Z]$/)) {
+ // Handle letter
+ }
+});
+
+Ink provides key booleans for special keys (backspace, delete, return for Enter, escape, arrow keys, etc.)[[11]](https://www.nico.fyi/blog/react-ink-cli-chat-supabase#:~:text=Make%20CLI%20app%20with%20React,key).
+
+We decided on **Ctrl+T** to toggle the emoji color mode (to avoid interfering with normal letter keys). When the user presses Ctrl+T: - If current mode was White, switch to Orange. - If Orange, switch to Alternating. - If Alternating, switch back to White (cycling through the three options). - Update the state mode so that the UI re-renders the mode label. Also, perhaps print a short status message like “Switched to Orange mode” (could be in the status line).
+
+When a **letter key** is pressed (A–Z, case-insensitive): - Determine the **emoji name** for that letter in the current mode: - If mode is White: alphabet-white-<letter> - If Orange: alphabet-yellow-<letter> (assuming “orange” set is named “yellow” in emoji list) - If Alternating: we need to track what the last used color was. One approach is to maintain a toggle boolean that flips each time a letter is added. E.g., lastColorUsed = 'white' then next becomes 'orange', etc. Another approach: alternate based on the length of typed letters (even index -> white, odd index -> orange). This is simpler: if the index of new letter is even (0-based), use the current base mode’s primary color or just use white/orange by pattern. But since “Alternate” specifically implies ignoring whatever White/Orange mode was set and doing a pattern, perhaps define: Alternate always starts with white for first letter, orange for second, then white, etc., regardless of prior mode. - Implement alternate by index: if typedLetters.length (before adding) is even, use white, else use orange (or vice-versa; either is fine, the user can toggle mode to get a different starting color if needed).
+
+* Make the Slack API call reactions.add with that emoji name. Await the response.
+* If success, update our local state: push the letter (or an object with letter & color if we need to remember color to remove correctly).
+* If error:
+  + If error == "already\_reacted", it means this user already has a reaction with that emoji. We could notify “Emoji already added. Try a different letter or remove it first.” We **do not** add it to local state in this case.
+  + If error == "invalid\_name" (emoji not found in Slack, maybe the workspace doesn’t have the alphabet pack or we got the name wrong), inform the user (our tool might not work without those emoji).
+  + Other errors: log them.
+* Update the UI: The “Typed: XYZ” line should update to include the new letter.
+
+When **Backspace** is pressed: - If there are letters in our typedLetters state: - Take the last one. Determine its emoji name (we must know which color it was so we remove the correct one. So storing the color for each typed letter is useful. We can store an array of objects like {char: 'a', color: 'white'}). - Call reactions.remove with that emoji name. - If success (very likely if we just added it earlier), remove that letter from our state (pop it from array). - If error no\_reaction or message\_not\_found: This would be unusual (maybe someone already removed all reactions or the message got deleted). In such case, just remove it from UI state anyway, assuming our goal is to reflect Slack. But generally, for consistency, we might still pop it if we thought it was there. We can also warn “Could not remove reaction (it may have already been removed)”. - Update UI. - If **no letters left** and Backspace is pressed: - We interpret this as a request to exit (or “abort”). The user tried to backspace when nothing to undo, which might mean they want to quit. We can simply exit the program gracefully in this scenario (instead of attempting to delete anything). - To **exit gracefully** in Ink, we use the useApp hook. It provides an exit() method to unmount the Ink app and finish the process[[12]](https://github.com/vadimdemedes/ink#:~:text=GitHub%20github,the%20whole%20Ink%20app). For example:
+
+const { exit } = useApp();
+...
+if (key.backspace && typedLetters.length === 0) {
+ exit(); // end the Ink app
+ return;
+}
+
+Alternatively, we could treat double Backspace as a signal, but it’s simpler to just exit on first backspace when nothing to remove (the user even suggested “abort or something” in that case).
+
+* Also consider allowing **Esc or Enter** as explicit exit keys:
+* If the user presses Esc (perhaps they changed their mind about adding reactions) or Enter (finished spelling out what they wanted), we call exit() as well.
+* We should document these in the usage hint.
+
+**Displaying Real-time Feedback**: - As letters are typed or removed, our state updates will automatically re-render the Ink UI: - The “Typed: \_\_\_” line will reflect current letters. - If we wanted, we could also dynamically fetch and show the reactions on the Slack message. However, doing so would require polling Slack’s reactions.get or listening via an RTM socket – that’s overkill. Since our tool is the one adding/removing, we trust our state. (Just note: if someone else adds a reaction in Slack concurrently, our UI won’t show it – which is fine.) - We might color-code the letters in the “Typed” display: - E.g., show letters added in white mode as plain or underlined, and orange mode as orange text. Ink allows 16 colors by name (orange might not be directly available; maybe use yellow). For example, <Text color="yellow">A</Text> for orange mode letters, and <Text color="white">B</Text> for white (though white on default background may not be visible on white terminals – maybe use brightWhite or so). This is a minor UI tweak.
+
+**Example UI Output** (textual representation):
+
+╭────────────────────────╮
+│ \*\*Alice\*\*: Hello, world! │ ← Slack message (author in bold maybe, text content)
+╰────────────────────────╯
+
+Mode: White | Typed: HELLO
+(Type letters to react, Backspace to undo, Ctrl+T toggle color, Enter to exit)
+
+As the user types “HELLO”, each letter appears after “Typed:” and is also being added as Slack reactions in real time.
+
+## 4. Building a Single Binary with Deno
+
+One big advantage of Deno is the built-in compiler to create self-contained executables. We will use deno compile to produce binaries for each platform.
+
+Key points: - **Include necessary permissions** at compile time. The compiled binary will *only* have the permissions we grant at compile time (they become the runtime defaults). We know our app needs: - Network access to Slack API (we can restrict host to slack.com for safety) – use --allow-net=slack.com. - Read access to the user’s home config for .netrc – use --allow-read=$HOME/.netrc (on Windows, $HOME might not be set; we might use $USERPROFILE or parse Deno.env.get("HOME") in code. To be safe, could allow-read to entire home or provide a note). - Environment access for SLACK\_TOKEN – use --allow-env=SLACK\_TOKEN (to limit to just that variable). - We do **not** need file write, or general read beyond .netrc, or subprocess, etc. So we can keep it constrained.
+
+During development, using -A (allow all) is convenient, but for release, we specify minimal flags.
+
+* **Cross-Compilation**: Deno can cross-compile to different OS/architectures using the --target flag[[13]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=Deno%20supports%20cross%20compiling%20to,regardless%20of%20the%20host%20platform). We will set up our GitHub Actions workflow to build Linux, Windows, and both macOS variants. Alternatively, one could compile on each native OS (which we will do via a build matrix in CI). For reference, supported targets include:
+* x86\_64-unknown-linux-gnu (64-bit Linux)
+* x86\_64-pc-windows-msvc (64-bit Windows)
+* x86\_64-apple-darwin (macOS Intel)
+* aarch64-apple-darwin (macOS Apple Silicon)[[14]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=OS%20Architecture%20Target%20Windows%20x86_64,gnu)
+
+The CLI commands, for example:
+
+deno compile --allow-net=slack.com --allow-read=$HOME/.netrc --allow-env=SLACK\_TOKEN \
+ --target x86\_64-unknown-linux-gnu --output dist/slack-emoji-typer-linux main.ts
+
+deno compile --allow-net=slack.com --allow-read=$HOME/.netrc --allow-env=SLACK\_TOKEN \
+ --target x86\_64-pc-windows-msvc --output dist/slack-emoji-typer-win.exe main.ts
+
+deno compile --allow-net=slack.com --allow-read=$HOME/.netrc --allow-env=SLACK\_TOKEN \
+ --target x86\_64-apple-darwin --output dist/slack-emoji-typer-mac main.ts
+
+deno compile --allow-net=slack.com --allow-read=$HOME/.netrc --allow-env=SLACK\_TOKEN \
+ --target aarch64-apple-darwin --output dist/slack-emoji-typer-mac-arm64 main.ts
+
+Each invocation will produce a single binary for the specified platform. (When cross-compiling, Deno may download the cross-compiler backend on first use and cache it[[15]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=Cross,DENO_DIR).)
+
+* **Binary Size**: Deno’s compiled binaries include the Deno runtime, so expect ~30-40 MB binaries. This is normal. (We could consider upx compression or similar if needed, but it’s generally fine.)
+* **Naming**: We named outputs to include platform. We might also include version in the filename if distributing.
+
+## 5. GitHub Actions – CI/CD Pipeline
+
+We want an automated pipeline to **build the binaries** on new releases and upload them to GitHub Releases. We will use **GitHub Actions** for CI, and possibly integrate **release-please** for automated version bumping and release tagging based on Conventional Commits.
+
+**Workflow Triggers**: - Use a **tag-based release** flow: e.g., when a git tag like v1.2.3 is pushed, trigger the build and release workflow. - We can also incorporate release-please to manage those tags. Typically: - A release-please workflow runs on each push to main. It accumulates commit messages and if it finds conventional commits, it opens or updates a PR to bump version and changelog. When that PR is merged, release-please will tag the new version and create a GitHub Release (optionally). - Then another workflow (or the same, via release-please’s settings) can handle publishing artifacts.
+
+For simplicity, we outline a workflow that triggers on new tags:
+
+**Example /.github/workflows/release.yml:**
+
+name: Build and Release
+
+on:
+ push:
+ tags:
+ - "v\*.\*.\*" # triggers when a tag like v1.0.0 is pushed
+
+jobs:
+ build:
+ name: Compile binaries
+ runs-on: ubuntu-latest
+ strategy:
+ matrix:
+ include:
+ - os: ubuntu-latest # will build Linux binary
+ target: x86\_64-unknown-linux-gnu
+ artifact\_name: slack-emoji-typer-linux
+ - os: ubuntu-latest # cross-compile Windows binary on Linux
+ target: x86\_64-pc-windows-msvc
+ artifact\_name: slack-emoji-typer-windows.exe
+ - os: ubuntu-latest # cross-compile macOS Intel on Linux
+ target: x86\_64-apple-darwin
+ artifact\_name: slack-emoji-typer-macos
+ - os: ubuntu-latest # cross-compile macOS ARM on Linux
+ target: aarch64-apple-darwin
+ artifact\_name: slack-emoji-typer-macos-arm64
+ steps:
+ - name: Checkout code
+ uses: actions/checkout@v3
+
+ - name: Setup Deno
+ uses: denoland/setup-deno@v1
+ with:
+ deno-version: v1.x # e.g., latest 1.x
+
+ - name: Compile for ${{ matrix.target }}
+ run: |
+ deno compile --allow-net=slack.com --allow-read=${HOME}/.netrc --allow-env=SLACK\_TOKEN \
+ --target ${matrix.target} --output ${matrix.artifact\_name} main.ts
+
+ - name: Upload artifact
+ uses: actions/upload-artifact@v3
+ with:
+ name: ${{ matrix.artifact\_name }}
+ path: ${{ matrix.artifact\_name }}
+ if-no-files-found: error
+
+ release:
+ name: Create GitHub Release
+ needs: build
+ runs-on: ubuntu-latest
+ steps:
+ - name: Download artifacts
+ uses: actions/download-artifact@v3
+ for: build
+ - name: Publish Release
+ uses: ncipollo/release-action@v1 # or softprops/action-gh-release@v1
+ with:
+ artifacts: |
+ slack-emoji-typer-linux
+ slack-emoji-typer-windows.exe
+ slack-emoji-typer-macos
+ slack-emoji-typer-macos-arm64
+ token: ${{ secrets.GITHUB\_TOKEN }}
+ tag: ${{ github.ref }} # e.g. v1.0.0
+ name: Release ${{ github.ref }}
+ draft: false
+ prerelease: false
+
+Explanation: - We trigger on tag push. Alternatively, you could trigger on a release event. - The **build job** uses a matrix to build four variants. We chose to do all on ubuntu-latest using cross-compilation for simplicity (Deno supports cross-compiling to all targets from any host[[13]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=Deno%20supports%20cross%20compiling%20to,regardless%20of%20the%20host%20platform)). This avoids needing Mac runners (which are slower/limited). We compile Windows and macOS from Linux. (If any cross-compilation issues arise, an alternative is to run separate jobs on macos-latest for mac binaries and windows-latest for Windows, but we’ll assume Deno can handle it.) - We use denoland/setup-deno action to install Deno on the runner. - Compile commands include the required permissions as discussed, and output named artifacts. - We upload each binary as an artifact (temporarily within the workflow). - The **release job** waits for build to finish, then downloads all artifacts. - We use a GitHub Action to create a release and attach artifacts. Here we used ncipollo/release-action (which can create or update a release by tag) or one could use the official actions/create-release and actions/upload-release-asset. The above composite uses a single step for both creation and uploading of listed artifacts for brevity. - ${{ github.ref }} is the tag name, e.g. “refs/tags/v1.0.0”. We might need to trim the refs/tags/ prefix in some actions or use ${{ github.ref\_name }}. But the idea is to use the tag as release name/version. - The GITHUB\_TOKEN is used to authenticate the release creation. Ensure it has contents: write permission (by default in tag triggers it should, or we explicitly set in workflow). - After this runs, a GitHub Release “Release v1.0.0” will be published containing the 4 binaries.
+
+**Using release-please**: We can add another workflow (as suggested by the user) to automate tagging: - A release-please.yml (as per Google’s release-please action instructions) on push to main that opens PRs with changelog & version bump[[16]](https://github.com/marketplace/actions/release-please-action#:~:text=1.%20Create%20a%20%60.github%2Fworkflows%2Frelease,with%20these%20contents)[[17]](https://github.com/marketplace/actions/release-please-action#:~:text=2,creating%20Release%20PRs%20for%20you). Once such a PR is merged, it will push a tag and trigger the above build workflow. - The user needs to configure a Personal Access Token for release-please (or use GITHUB\_TOKEN with elevated rights if allowed).
+
+This approach means the workflow we wrote will only run when a version tag is created (either manually or by release-please). This keeps releases consistent and tied to version numbers.
+
+**Homebrew Tap (Optional)**: If distribution via Homebrew is desired, we can automate creating or updating a Homebrew formula: - Typically, one would create a separate GitHub repo as a Homebrew tap, and a formula Ruby file referencing the download URLs of the release assets. We could add a job in the release workflow to update that formula (committing the new SHA256 checksums of the binaries). - Since Deno binaries are fairly large, a formula might fetch the tarball from GitHub releases. We might not implement this now, but note that after each release, one could update Homebrew. - There isn’t an out-of-the-box Deno tool for Homebrew, but the standard brew process applies.
+
+For now, the user can manually install by downloading the binary from Releases, or we instruct how to use brew tap later. This is an enhancement outside the core ask.
+
+## 6. Best Practices & Additional Notes
+
+* **Security**: We are using a user token which effectively has the same permissions as the user on Slack. We should **never log the token** or include it in any output. If the CLI has a --verbose mode, it should still refrain from printing the token. Also, remind the user to keep that token secret.
+* **Revoking Token**: If the user ever feels the token is compromised, they should sign out of Slack or change password which invalidates the session (the xoxc token will expire).
+* **Error Messages**: Provide clear messages. For example:
+* If Slack returns invalid\_auth, say “Error: Slack authentication failed. Please check your token (expired or invalid).”
+* If channel\_not\_found or message\_not\_found, say “Error: Cannot access the specified message. Check the URL and that you are a member of that channel.”
+* If already\_reacted, inform them they already added that letter. Possibly suggest using a different color or removing first.
+* If our code encounters network errors (e.g., no internet), catch those (Deno fetch will throw on network failure) and inform “Network error connecting to Slack”.
+* **Rate Limiting**: The Slack API may rate-limit reactions.add if done in rapid succession. According to Slack’s guidelines, reactions.add is Tier 3 (allowing quite a few per minute), but just in case, if the user types extremely fast, we might hit a limit. Slack might return ratelimited error. Our app could handle this by pausing briefly and retrying (the Slack retry-after header tells how long to wait). For simplicity, maybe just inform the user to slow down if that occurs.
+* **Testing**: Write unit tests for small pieces (like URL parsing). For integration, one could use a Slack workspace with a test message. Since our CLI is stateful and interactive, automated testing is tricky, but we can test the non-interactive parts (parsing, API call formation, state reducer logic for adding/removing letters).
+* **Deno Test Permissions**: Note that deno test won’t allow net or env by default. We could either mock fetch calls in tests or run with --allow-net pointing to a Slack sandbox domain if available. Given this is mostly integration heavy, we might rely on manual testing or a simulated fetch (could use Deno’s std/testing/mock tools to simulate fetch responses).
+* **Documentation**: We should add a README explaining how to obtain the Slack token (with a clear warning about security), how to use the CLI, examples of the Slack URL format, and the available key controls in the CLI (letters, backspace, toggle key, exit keys). Also mention that the workspace must have the appropriate alphabet emoji packs installed (or else the Slack API calls will return invalid\_name errors for those emoji).
+* **Conventional Commits & Release Automation**: Encourage using Conventional Commit messages (e.g., feat: ..., fix: ...) so that release-please can categorize changes. Release-please will auto-generate a changelog and determine version bump (major/minor/patch) based on commit types[[18]](https://github.com/marketplace/actions/release-please-action#:~:text=Release%20Please%20Action). This will streamline publishing new versions. The user mentioned possibly using GitHub’s built-in features – as of 2025, GitHub doesn’t automatically do conventional commit parsing into releases without an Action, so release-please or similar is the way to go (or manual bumping).
+
+By following the above, the coding agent (or developer) implementing this should have all the necessary details to build the CLI, handle Slack API nuances, and set up continuous integration for building and releasing the tool. Good luck, and happy coding!
+
+**Sources:**
+
+* Slack message link parsing (converting p1234567890abcdef to timestamp)[[2]](https://stackoverflow.com/questions/46355373/get-a-messages-ts-value-from-archives-link#:~:text=So%2C%20what%20I%27ve%20found%20is,1234567898.000159)
+* Slack API – retrieving a single message via conversations.history[[3]](https://api.slack.com/methods/conversations.history#:~:text=If%20you%20know%20the%20,value%20respectively)
+* Slack API – required parameters for adding reactions[[9]](https://api.slack.com/methods/reactions.add#:~:text=) and example error response for duplicate reaction[[6]](https://api.slack.com/methods/reactions.add#:~:text=Common%20error%20response)
+* Deno compile – cross-compiling targets for Windows, macOS (Intel/ARM), Linux[[13]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=Deno%20supports%20cross%20compiling%20to,regardless%20of%20the%20host%20platform)
+* Release automation with release-please (GitHub Action) – uses Conventional Commits to manage versioning[[19]](https://github.com/marketplace/actions/release-please-action#:~:text=2,creating%20Release%20PRs%20for%20you)[[16]](https://github.com/marketplace/actions/release-please-action#:~:text=1.%20Create%20a%20%60.github%2Fworkflows%2Frelease,with%20these%20contents)
+
+[[1]](https://docs.deno.com/runtime/reference/jsx/#:~:text=deno) JSX
+
+<https://docs.deno.com/runtime/reference/jsx/>
+
+[[2]](https://stackoverflow.com/questions/46355373/get-a-messages-ts-value-from-archives-link#:~:text=So%2C%20what%20I%27ve%20found%20is,1234567898.000159) slack - Get a message's ts value from /archives link - Stack Overflow
+
+<https://stackoverflow.com/questions/46355373/get-a-messages-ts-value-from-archives-link>
+
+[[3]](https://api.slack.com/methods/conversations.history#:~:text=If%20you%20know%20the%20,value%20respectively) conversations.history method | Slack
+
+<https://api.slack.com/methods/conversations.history>
+
+[[4]](https://api.slack.com/methods/reactions.add#:~:text=) [[5]](https://api.slack.com/methods/reactions.add#:~:text=Common%20successful%20response) [[6]](https://api.slack.com/methods/reactions.add#:~:text=Common%20error%20response) [[7]](https://api.slack.com/methods/reactions.add#:~:text=Error%20Description%20) [[8]](https://api.slack.com/methods/reactions.add#:~:text=) [[9]](https://api.slack.com/methods/reactions.add#:~:text=) reactions.add method | Slack
+
+<https://api.slack.com/methods/reactions.add>
+
+[[10]](https://www.npmjs.com/package/ink-box#:~:text=render%28%20%3CBox%20borderStyle%3D,Box%3E) ink-box - npm
+
+<https://www.npmjs.com/package/ink-box>
+
+[[11]](https://www.nico.fyi/blog/react-ink-cli-chat-supabase#:~:text=Make%20CLI%20app%20with%20React,key) Make CLI app with React | Nico's Blog
+
+<https://www.nico.fyi/blog/react-ink-cli-chat-supabase>
+
+[[12]](https://github.com/vadimdemedes/ink#:~:text=GitHub%20github,the%20whole%20Ink%20app) vadimdemedes/ink: React for interactive command-line apps - GitHub
+
+<https://github.com/vadimdemedes/ink>
+
+[[13]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=Deno%20supports%20cross%20compiling%20to,regardless%20of%20the%20host%20platform) [[14]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=OS%20Architecture%20Target%20Windows%20x86_64,gnu) [[15]](https://docs.deno.com/runtime/reference/cli/compile/#:~:text=Cross,DENO_DIR) deno compile, standalone executables
+
+<https://docs.deno.com/runtime/reference/cli/compile/>
+
+[[16]](https://github.com/marketplace/actions/release-please-action#:~:text=1.%20Create%20a%20%60.github%2Fworkflows%2Frelease,with%20these%20contents) [[17]](https://github.com/marketplace/actions/release-please-action#:~:text=2,creating%20Release%20PRs%20for%20you) [[18]](https://github.com/marketplace/actions/release-please-action#:~:text=Release%20Please%20Action) [[19]](https://github.com/marketplace/actions/release-please-action#:~:text=2,creating%20Release%20PRs%20for%20you) release-please-action · Actions · GitHub Marketplace · GitHub
+
+<https://github.com/marketplace/actions/release-please-action>

@@ -1,0 +1,27 @@
+# Deno
+node_modules/
+deno.lock
+
+# Build outputs
+dist/
+*.exe
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Claude
+.claude/
