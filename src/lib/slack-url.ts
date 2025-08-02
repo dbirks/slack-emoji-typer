@@ -1,7 +1,4 @@
-export interface SlackMessageInfo {
-  channelId: string;
-  messageTs: string;
-}
+import type { SlackMessageInfo } from "../types/slack.ts";
 
 export function parseSlackUrl(url: string): SlackMessageInfo {
   try {

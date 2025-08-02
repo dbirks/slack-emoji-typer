@@ -31,30 +31,37 @@ code in this repository.
 
 ### Core Flow
 
-1. **CLI Entry** (`main.ts`): Parses command line args, authenticates, fetches
-   message data
-2. **Authentication** (`auth.ts`): Handles both environment variables and .netrc
-   file parsing
-3. **URL Parsing** (`slack-url.ts`): Extracts channel ID and message timestamp
-   from Slack URLs
-4. **API Layer** (`slack-api.ts`): Manages all Slack Web API interactions
-5. **Interactive UI** (`app.tsx`): React/Ink-based terminal interface with
-   keyboard input handling
+1. **CLI Entry** (`main.ts` → `src/main.ts`): Parses command line args,
+   authenticates, fetches message data
+2. **Authentication** (`src/lib/auth.ts`): Handles both environment variables
+   and .netrc file parsing
+3. **URL Parsing** (`src/lib/slack-url.ts`): Extracts channel ID and message
+   timestamp from Slack URLs
+4. **API Layer** (`src/lib/slack-api.ts`): Manages all Slack Web API
+   interactions
+5. **Interactive UI** (`src/ui/app.tsx`): React/Ink-based terminal interface
+   with keyboard input handling
 
 ### Key Components
 
-**SlackApiClient** (`slack-api.ts`):
+**SlackApiClient** (`src/lib/slack-api.ts`):
 
 - Centralized API client with typed responses
 - Handles message fetching, user lookup, and reaction management
 - Includes comprehensive error handling for Slack API responses
 
-**Interactive App** (`app.tsx`):
+**Interactive App** (`src/ui/app.tsx`):
 
 - React component using Ink for terminal UI
 - Manages three color modes: white, orange, alternating
 - State management for typed letters and current emoji reactions
 - Real-time keyboard input processing with `useInput` hook
+
+**Type Definitions** (`src/types/`):
+
+- `slack.ts`: Slack API response types and interfaces
+- `ui.ts`: UI component types (ColorMode, TypedLetter)
+- `index.ts`: Barrel exports for all types
 
 **Authentication Strategy**:
 
@@ -74,6 +81,27 @@ code in this repository.
 - White letters: `:alphabet-white-a:` through `:alphabet-white-z:`
 - Orange letters: `:alphabet-yellow-a:` through `:alphabet-yellow-z:`
 - Alternating mode cycles between white/orange for each letter
+
+### Project Structure
+
+```
+├── main.ts              # Root entry point (re-exports from src/)
+├── src/
+│   ├── main.ts          # Main application logic
+│   ├── lib/             # Core business logic
+│   │   ├── index.ts     # Barrel exports
+│   │   ├── auth.ts      # Authentication utilities
+│   │   ├── slack-api.ts # Slack API client
+│   │   └── slack-url.ts # URL parsing utilities
+│   ├── ui/              # User interface components
+│   │   └── app.tsx      # Main Ink/React UI component
+│   └── types/           # TypeScript type definitions
+│       ├── index.ts     # Barrel exports
+│       ├── slack.ts     # Slack API types
+│       └── ui.ts        # UI component types
+├── deno.json            # Deno configuration
+└── package.json         # Package metadata
+```
 
 ### Build & Release
 

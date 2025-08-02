@@ -1,19 +1,12 @@
 import { useState } from "react";
 import { Box, render, Text, useApp, useInput } from "ink";
-import {
-  getEmojiName,
-  SlackApiClient,
+import { getEmojiName, SlackApiClient } from "../lib/index.ts";
+import type {
+  ColorMode,
   SlackMessage,
   SlackUser,
-} from "./slack-api.ts";
-
-type ColorMode = "white" | "orange" | "alternate";
-
-interface TypedLetter {
-  char: string;
-  color: "white" | "orange";
-  emojiName: string;
-}
+  TypedLetter,
+} from "../types/index.ts";
 
 interface AppProps {
   slackClient: SlackApiClient;
