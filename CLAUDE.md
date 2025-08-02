@@ -25,7 +25,7 @@ code in this repository.
 - Manual builds: Use `deno compile` with appropriate `--target` flags for
   different platforms
 - Requires permissions:
-  `--allow-net=slack.com --allow-env=SLACK_TOKEN --allow-read=$HOME/.netrc`
+  `--allow-net=slack.com --allow-env --allow-read=$HOME/.netrc`
 
 ## Architecture Overview
 

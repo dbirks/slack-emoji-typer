@@ -25,3 +25,5 @@ coverage/
 
 # Claude
 .claude/
+
+slack-emoji-typer
