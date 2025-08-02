@@ -77,6 +77,7 @@ export function extractWorkspaceUrl(url: string): string | null {
     const parsedUrl = new URL(url);
 
     // Handle archives format: https://workspace.slack.com/archives/...
+    // Extract just the base URL (protocol + hostname) without any path
     if (parsedUrl.pathname.includes("/archives/")) {
       return `${parsedUrl.protocol}//${parsedUrl.hostname}`;
     }
@@ -88,7 +89,7 @@ export function extractWorkspaceUrl(url: string): string | null {
       return null; // Indicate we need SLACK_WORKSPACE_URL from environment
     }
 
-    // Generic slack.com domain handling
+    // Generic slack.com domain handling - always return just the base URL
     if (parsedUrl.hostname.endsWith(".slack.com")) {
       return `${parsedUrl.protocol}//${parsedUrl.hostname}`;
     }

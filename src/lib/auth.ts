@@ -94,11 +94,15 @@ async function extractTokenFromCookie(cookie: string, workspaceUrl?: string): Pr
     throw new Error("Workspace URL is required when using SLACK_API_COOKIE. Either provide it in the Slack message URL or set SLACK_WORKSPACE_URL environment variable");
   }
 
+  // Ensure we're hitting just the base URL like the Python code
+  const baseUrl = new URL(finalWorkspaceUrl);
+  const rootUrl = `${baseUrl.protocol}//${baseUrl.hostname}`;
+  console.log(`🎯 Making request to root workspace URL: ${rootUrl}`);
   console.log(`🍪 Using cookie (first 20 chars): ${cookie.substring(0, 20)}...`);
 
   try {
     console.log("📡 Making request to workspace page...");
-    const response = await fetch(finalWorkspaceUrl, {
+    const response = await fetch(rootUrl, {
       headers: {
         "Cookie": `d=${cookie}`,
         "User-Agent": "Mozilla/5.0 (compatible; slack-emoji-typer)",
