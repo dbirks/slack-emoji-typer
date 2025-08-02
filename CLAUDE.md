@@ -24,9 +24,7 @@ code in this repository.
 - GitHub Actions handles cross-platform builds automatically on tag push
 - Manual builds: Use `deno compile` with appropriate `--target` flags for
   different platforms
-- Requires permissions:
-  `--allow-net=slack.com --allow-env=SLACK_TOKEN,HOME,USERPROFILE,NODE_ENV,TERM_PROGRAM,TERM,COLORTERM,FORCE_COLOR,CI --allow-read=$HOME/.netrc`
-- **Environment Variables**: The `CI` variable prevents ci-info from checking dozens of CI environment variables. Run with `CI=false` to avoid permission prompts.
+- Requires permissions: `--allow-net=slack.com --allow-env --allow-read=$HOME/.netrc`
 
 ## Architecture Overview
 
