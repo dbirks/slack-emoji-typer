@@ -35,7 +35,7 @@ jobs:
           deno compile \
             --allow-net=slack.com \
             --allow-read=$HOME/.netrc \
-            --allow-env \
+            --allow-env=SLACK_TOKEN,HOME,USERPROFILE,NODE_ENV,TERM_PROGRAM,TERM,COLORTERM,FORCE_COLOR \
             --target ${{ matrix.target }} \
             --output ${{ matrix.artifact_name }} \
             main.ts

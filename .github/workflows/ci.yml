@@ -49,7 +49,7 @@ jobs:
         run: |
           deno compile \
             --allow-net=slack.com \
-            --allow-env \
+            --allow-env=SLACK_TOKEN,HOME,USERPROFILE,NODE_ENV,TERM_PROGRAM,TERM,COLORTERM,FORCE_COLOR \
             --allow-read=$HOME/.netrc \
             --target x86_64-unknown-linux-gnu \
             --output slack-emoji-typer-test \
