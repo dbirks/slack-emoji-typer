@@ -118,8 +118,10 @@ async function extractTokenFromCookie(cookie: string, workspaceUrl?: string): Pr
     const tokenMatch = html.match(/xoxc-[\w-]+/);
     if (!tokenMatch) {
       console.log("❌ No xoxc- token found in HTML response");
-      console.log("🔍 First 500 characters of HTML:");
-      console.log(html.substring(0, 500));
+      console.log("📄 Full HTML response:");
+      console.log("=" .repeat(80));
+      console.log(html);
+      console.log("=" .repeat(80));
       throw new Error("Could not find Slack token in workspace page");
     }
 
