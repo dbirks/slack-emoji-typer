@@ -69,22 +69,23 @@ code in this repository.
 
 **Authentication Strategy**:
 
-- Priority: Cookie extraction (`SLACK_API_COOKIE`) → Environment variable (`SLACK_TOKEN`) → .netrc file → error
-- Cookie-based: Extracts token dynamically from workspace page using session cookie
+- **Cookie-only authentication**: Uses session cookie to extract token dynamically
+- Priority: `SLACK_API_COOKIE` environment variable → .netrc file → error
 - Workspace URL is automatically extracted from the Slack message URL (for archive format)
-- .netrc parsing expects format: `machine slack.com login <token>`
-- Uses Slack user tokens (xoxc-*) rather than bot tokens
+- .netrc format: `machine slack.com login <cookie-value>`
+- Extracts Slack user tokens (xoxc-*) from workspace pages using session cookie
 - For app.slack.com URLs, `SLACK_WORKSPACE_URL` environment variable is still required
 
-**Cookie Extraction**:
+**Cookie Setup**:
 To get your Slack session cookie:
 1. Open your Slack workspace in a web browser
-2. Open browser developer tools (F12)
+2. Open developer tools (F12)
 3. Go to Application/Storage → Cookies → your workspace domain
 4. Find the cookie named `d` and copy its value
-5. Set `SLACK_API_COOKIE=<cookie-value>`
-6. The workspace URL will be automatically extracted from archive-format URLs
-7. For app.slack.com URLs, also set `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
+5. **Option A**: Set environment variable `SLACK_API_COOKIE=<cookie-value>`
+6. **Option B**: Add to ~/.netrc file: `machine slack.com login <cookie-value>`
+7. The workspace URL will be automatically extracted from archive-format URLs
+8. For app.slack.com URLs, also set `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
 
 ### URL Format Support
 

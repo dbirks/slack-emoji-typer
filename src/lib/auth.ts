@@ -1,45 +1,42 @@
 export async function getSlackToken(workspaceUrl?: string): Promise<string> {
-  // First, try cookie-based authentication
-  const cookie = Deno.env.get("SLACK_API_COOKIE");
-  if (cookie) {
-    try {
-      const token = await extractTokenFromCookie(cookie, workspaceUrl);
-      return token;
-    } catch (error) {
-      console.warn("Cookie-based auth failed:", error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  // Second, try environment variable
-  const envToken = Deno.env.get("SLACK_TOKEN");
-  if (envToken) {
-    return envToken;
-  }
-
+  // First, try environment variable
+  let cookie = Deno.env.get("SLACK_API_COOKIE");
+  
   // If not found, try .netrc file
-  try {
-    const homeDir = Deno.env.get("HOME") || Deno.env.get("USERPROFILE");
-    if (!homeDir) {
-      throw new Error("Could not determine home directory");
-    }
+  if (!cookie) {
+    try {
+      const homeDir = Deno.env.get("HOME") || Deno.env.get("USERPROFILE");
+      if (!homeDir) {
+        throw new Error("Could not determine home directory");
+      }
 
-    const netrcPath = `${homeDir}/.netrc`;
-    const netrcContent = await Deno.readTextFile(netrcPath);
-
-    // Parse .netrc file to find slack.com entry
-    const token = parseNetrcForSlack(netrcContent);
-    if (token) {
-      return token;
+      const netrcPath = `${homeDir}/.netrc`;
+      const netrcContent = await Deno.readTextFile(netrcPath);
+      cookie = parseNetrcForSlack(netrcContent) || undefined;
+    } catch (_error) {
+      // .netrc file doesn't exist or can't be read
     }
-  } catch (_error) {
-    // .netrc file doesn't exist or can't be read, continue to error
   }
 
-  throw new Error(
-    "Slack token not found. Please set SLACK_API_COOKIE environment variable, " +
-      "SLACK_TOKEN environment variable, or add credentials to ~/.netrc file.\n" +
-      "For .netrc, add line: machine slack.com login your-token-here",
-  );
+  if (!cookie) {
+    throw new Error(
+      "Slack cookie not found. Please set SLACK_API_COOKIE environment variable or add to ~/.netrc file.\n" +
+      "To get your cookie:\n" +
+      "1. Open your Slack workspace in a browser\n" +
+      "2. Open developer tools (F12)\n" +
+      "3. Go to Application/Storage → Cookies → your workspace domain\n" +
+      "4. Find the cookie named 'd' and copy its value\n" +
+      "5. Either set SLACK_API_COOKIE=<cookie-value> or add to ~/.netrc:\n" +
+      "   machine slack.com login <cookie-value>"
+    );
+  }
+
+  try {
+    const token = await extractTokenFromCookie(cookie, workspaceUrl);
+    return token;
+  } catch (error) {
+    throw new Error(`Cookie authentication failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 function parseNetrcForSlack(content: string): string | null {
