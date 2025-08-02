@@ -1,4 +1,11 @@
 {
+  // Environment variables needed for compiled binary:
+  // SLACK_TOKEN - Authentication token for Slack API
+  // HOME,USERPROFILE - Finding .netrc file on Unix/Windows
+  // NODE_ENV - Ink development vs production mode detection
+  // TERM_PROGRAM - Ink terminal program identification (iTerm, VS Code, etc.)
+  // TERM,COLORTERM - Ink terminal capabilities detection
+  // FORCE_COLOR - Ink color output control
   "name": "slack-emoji-typer",
   "version": "1.0.0",
   "exports": "./main.ts",
