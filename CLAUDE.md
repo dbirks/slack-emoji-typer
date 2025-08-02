@@ -69,9 +69,19 @@ code in this repository.
 
 **Authentication Strategy**:
 
-- Priority: Environment variable (`SLACK_TOKEN`) → .netrc file → error
+- Priority: Cookie extraction (`SLACK_API_COOKIE` + `SLACK_WORKSPACE_URL`) → Environment variable (`SLACK_TOKEN`) → .netrc file → error
+- Cookie-based: Extracts token dynamically from workspace page using session cookie
 - .netrc parsing expects format: `machine slack.com login <token>`
 - Uses Slack user tokens (xoxc-*) rather than bot tokens
+- Cookie authentication requires both `SLACK_API_COOKIE` and `SLACK_WORKSPACE_URL` environment variables
+
+**Cookie Extraction**:
+To get your Slack session cookie:
+1. Open your Slack workspace in a web browser
+2. Open browser developer tools (F12)
+3. Go to Application/Storage → Cookies → your workspace domain
+4. Find the cookie named `d` and copy its value
+5. Set `SLACK_API_COOKIE=<cookie-value>` and `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
 
 ### URL Format Support
 

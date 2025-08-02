@@ -3,13 +3,29 @@ import type {
   SlackMessage,
   SlackUser,
 } from "../types/slack.ts";
+import { getSlackCookie } from "./auth.ts";
 
 export class SlackApiClient {
   private token: string;
+  private cookie: string | null;
   private baseUrl = "https://slack.com/api";
 
   constructor(token: string) {
     this.token = token;
+    this.cookie = getSlackCookie();
+  }
+
+  private getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Authorization": `Bearer ${this.token}`,
+      "Content-Type": "application/json",
+    };
+
+    if (this.cookie) {
+      headers["Cookie"] = `d=${this.cookie}`;
+    }
+
+    return headers;
   }
 
   async fetchMessage(
@@ -24,10 +40,7 @@ export class SlackApiClient {
       url.searchParams.set("limit", "1");
 
       const response = await fetch(url.toString(), {
-        headers: {
-          "Authorization": `Bearer ${this.token}`,
-          "Content-Type": "application/json",
-        },
+        headers: this.getHeaders(),
       });
 
       const data = await response.json();
@@ -57,10 +70,7 @@ export class SlackApiClient {
       url.searchParams.set("user", userId);
 
       const response = await fetch(url.toString(), {
-        headers: {
-          "Authorization": `Bearer ${this.token}`,
-          "Content-Type": "application/json",
-        },
+        headers: this.getHeaders(),
       });
 
       const data = await response.json();
@@ -88,10 +98,7 @@ export class SlackApiClient {
     try {
       const response = await fetch(`${this.baseUrl}/reactions.add`, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${this.token}`,
-          "Content-Type": "application/json",
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify({
           channel: channelId,
           timestamp: messageTs,
@@ -124,10 +131,7 @@ export class SlackApiClient {
     try {
       const response = await fetch(`${this.baseUrl}/reactions.remove`, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${this.token}`,
-          "Content-Type": "application/json",
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify({
           channel: channelId,
           timestamp: messageTs,
