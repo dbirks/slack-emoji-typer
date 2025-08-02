@@ -20,7 +20,7 @@ export async function getSlackToken(): Promise<string> {
     if (token) {
       return token;
     }
-  } catch (error) {
+  } catch (_error) {
     // .netrc file doesn't exist or can't be read, continue to error
   }
 

@@ -66,7 +66,9 @@ async function main() {
 
     console.log("\n👋 Goodbye!");
   } catch (error) {
-    console.error(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `❌ Error: ${error instanceof Error ? error.message : String(error)}`,
+    );
     Deno.exit(1);
   }
 }

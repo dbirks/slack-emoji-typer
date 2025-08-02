@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Box, render, Text, useApp, useInput } from "ink";
 import {
   getEmojiName,

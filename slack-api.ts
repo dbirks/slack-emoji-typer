@@ -64,7 +64,12 @@ export class SlackApiClient {
 
       return { ok: true, data: data.messages[0] };
     } catch (error) {
-      return { ok: false, error: `Network error: ${error instanceof Error ? error.message : String(error)}` };
+      return {
+        ok: false,
+        error: `Network error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
     }
   }
 
@@ -88,7 +93,12 @@ export class SlackApiClient {
 
       return { ok: true, data: data.user };
     } catch (error) {
-      return { ok: false, error: `Network error: ${error instanceof Error ? error.message : String(error)}` };
+      return {
+        ok: false,
+        error: `Network error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
     }
   }
 
@@ -119,7 +129,12 @@ export class SlackApiClient {
 
       return { ok: true };
     } catch (error) {
-      return { ok: false, error: `Network error: ${error instanceof Error ? error.message : String(error)}` };
+      return {
+        ok: false,
+        error: `Network error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
     }
   }
 
@@ -150,7 +165,12 @@ export class SlackApiClient {
 
       return { ok: true };
     } catch (error) {
-      return { ok: false, error: `Network error: ${error instanceof Error ? error.message : String(error)}` };
+      return {
+        ok: false,
+        error: `Network error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
     }
   }
 }
