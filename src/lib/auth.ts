@@ -1,9 +1,9 @@
-export async function getSlackToken(): Promise<string> {
+export async function getSlackToken(workspaceUrl?: string): Promise<string> {
   // First, try cookie-based authentication
   const cookie = Deno.env.get("SLACK_API_COOKIE");
   if (cookie) {
     try {
-      const token = await extractTokenFromCookie(cookie);
+      const token = await extractTokenFromCookie(cookie, workspaceUrl);
       return token;
     } catch (error) {
       console.warn("Cookie-based auth failed:", error instanceof Error ? error.message : String(error));
@@ -74,16 +74,15 @@ function parseNetrcForSlack(content: string): string | null {
   return token;
 }
 
-async function extractTokenFromCookie(cookie: string): Promise<string> {
-  // We need a workspace URL to extract the token from
-  // For now, we'll need the user to provide both cookie and workspace URL
-  const workspaceUrl = Deno.env.get("SLACK_WORKSPACE_URL");
-  if (!workspaceUrl) {
-    throw new Error("SLACK_WORKSPACE_URL environment variable is required when using SLACK_API_COOKIE");
+async function extractTokenFromCookie(cookie: string, workspaceUrl?: string): Promise<string> {
+  // Use provided workspace URL or fall back to environment variable
+  const finalWorkspaceUrl = workspaceUrl || Deno.env.get("SLACK_WORKSPACE_URL");
+  if (!finalWorkspaceUrl) {
+    throw new Error("Workspace URL is required when using SLACK_API_COOKIE. Either provide it in the Slack message URL or set SLACK_WORKSPACE_URL environment variable");
   }
 
   try {
-    const response = await fetch(workspaceUrl, {
+    const response = await fetch(finalWorkspaceUrl, {
       headers: {
         "Cookie": `d=${cookie}`,
         "User-Agent": "Mozilla/5.0 (compatible; slack-emoji-typer)",

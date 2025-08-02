@@ -33,7 +33,7 @@ jobs:
       - name: Compile for ${{ matrix.target }}
         run: |
           deno compile \
-            --allow-net=slack.com \
+            --allow-net \
             --allow-env \
             --allow-read=$HOME/.netrc \
             --target ${{ matrix.target }} \

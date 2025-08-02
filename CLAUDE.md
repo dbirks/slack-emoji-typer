@@ -24,7 +24,7 @@ code in this repository.
 - GitHub Actions handles cross-platform builds automatically on tag push
 - Manual builds: Use `deno compile` with appropriate `--target` flags for
   different platforms
-- Requires permissions: `--allow-net=slack.com --allow-env --allow-read=$HOME/.netrc`
+- Requires permissions: `--allow-net --allow-env --allow-read=$HOME/.netrc`
 
 ## Architecture Overview
 
@@ -69,11 +69,12 @@ code in this repository.
 
 **Authentication Strategy**:
 
-- Priority: Cookie extraction (`SLACK_API_COOKIE` + `SLACK_WORKSPACE_URL`) → Environment variable (`SLACK_TOKEN`) → .netrc file → error
+- Priority: Cookie extraction (`SLACK_API_COOKIE`) → Environment variable (`SLACK_TOKEN`) → .netrc file → error
 - Cookie-based: Extracts token dynamically from workspace page using session cookie
+- Workspace URL is automatically extracted from the Slack message URL (for archive format)
 - .netrc parsing expects format: `machine slack.com login <token>`
 - Uses Slack user tokens (xoxc-*) rather than bot tokens
-- Cookie authentication requires both `SLACK_API_COOKIE` and `SLACK_WORKSPACE_URL` environment variables
+- For app.slack.com URLs, `SLACK_WORKSPACE_URL` environment variable is still required
 
 **Cookie Extraction**:
 To get your Slack session cookie:
@@ -81,7 +82,9 @@ To get your Slack session cookie:
 2. Open browser developer tools (F12)
 3. Go to Application/Storage → Cookies → your workspace domain
 4. Find the cookie named `d` and copy its value
-5. Set `SLACK_API_COOKIE=<cookie-value>` and `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
+5. Set `SLACK_API_COOKIE=<cookie-value>`
+6. The workspace URL will be automatically extracted from archive-format URLs
+7. For app.slack.com URLs, also set `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
 
 ### URL Format Support
 

@@ -1,4 +1,4 @@
-import { getSlackToken, parseSlackUrl, SlackApiClient } from "./lib/index.ts";
+import { getSlackToken, parseSlackUrl, extractWorkspaceUrl, SlackApiClient } from "./lib/index.ts";
 import { renderApp } from "./ui/app.tsx";
 
 export async function main() {
@@ -19,9 +19,12 @@ export async function main() {
     console.log("Parsing Slack URL...");
     const { channelId, messageTs } = parseSlackUrl(slackUrl);
 
+    // Extract workspace URL from the Slack URL for cookie authentication  
+    const workspaceUrl = extractWorkspaceUrl(slackUrl);
+
     // Get Slack authentication token
     console.log("Authenticating with Slack...");
-    const token = await getSlackToken();
+    const token = await getSlackToken(workspaceUrl || undefined);
 
     // Initialize Slack API client
     const slackClient = new SlackApiClient(token);

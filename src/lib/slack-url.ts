@@ -71,3 +71,30 @@ function parseSlackTimestamp(messageId: string): string {
 
   return `${seconds}.${microseconds}`;
 }
+
+export function extractWorkspaceUrl(url: string): string | null {
+  try {
+    const parsedUrl = new URL(url);
+
+    // Handle archives format: https://workspace.slack.com/archives/...
+    if (parsedUrl.pathname.includes("/archives/")) {
+      return `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+    }
+
+    // Handle client format: https://app.slack.com/client/T12345/...
+    // For client URLs, we can't easily determine the workspace URL
+    // since they use app.slack.com, so we'll need to rely on env var
+    if (parsedUrl.hostname === "app.slack.com") {
+      return null; // Indicate we need SLACK_WORKSPACE_URL from environment
+    }
+
+    // Generic slack.com domain handling
+    if (parsedUrl.hostname.endsWith(".slack.com")) {
+      return `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+    }
+
+    return null; // Can't determine workspace URL
+  } catch (error) {
+    return null;
+  }
+}
