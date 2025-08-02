@@ -21,6 +21,11 @@ export async function main() {
 
     // Extract workspace URL from the Slack URL for cookie authentication  
     const workspaceUrl = extractWorkspaceUrl(slackUrl);
+    if (workspaceUrl) {
+      console.log(`🌐 Extracted workspace URL: ${workspaceUrl}`);
+    } else {
+      console.log("⚠️  Could not extract workspace URL from Slack URL - will use SLACK_WORKSPACE_URL env var");
+    }
 
     // Get Slack authentication token
     console.log("Authenticating with Slack...");
