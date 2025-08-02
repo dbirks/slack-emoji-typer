@@ -50,12 +50,17 @@ code in this repository.
 - Handles message fetching, user lookup, and reaction management
 - Includes comprehensive error handling for Slack API responses
 
-**Interactive App** (`src/ui/app.tsx`):
+**React UI Components** (`src/ui/`):
 
-- React component using Ink for terminal UI
-- Manages three color modes: white, orange, alternating
-- State management for typed letters and current emoji reactions
-- Real-time keyboard input processing with `useInput` hook
+- **App** (`app.tsx`): Main orchestrator component using custom hooks
+- **Components** (`components/`): Focused, reusable UI components
+  - `MessageDisplay`: Shows Slack message with author styling
+  - `StatusBar`: Displays current mode and typed letters with colors
+  - `StatusMessage`: Shows status updates and error messages
+  - `HelpText`: Static command help text
+- **Hooks** (`hooks/`): Custom React hooks for state and behavior
+  - `useReactionManager`: Manages emoji reactions, color modes, and API calls
+  - `useKeyboardHandler`: Handles all keyboard input events
 
 **Type Definitions** (`src/types/`):
 
@@ -94,7 +99,17 @@ code in this repository.
 │   │   ├── slack-api.ts # Slack API client
 │   │   └── slack-url.ts # URL parsing utilities
 │   ├── ui/              # User interface components
-│   │   └── app.tsx      # Main Ink/React UI component
+│   │   ├── app.tsx      # Main UI orchestrator component
+│   │   ├── components/  # Reusable UI components
+│   │   │   ├── index.ts # Component barrel exports
+│   │   │   ├── MessageDisplay.tsx # Slack message display
+│   │   │   ├── StatusBar.tsx      # Mode and typed letters display
+│   │   │   ├── StatusMessage.tsx  # Status/error messages
+│   │   │   └── HelpText.tsx       # Command help text
+│   │   └── hooks/       # Custom React hooks
+│   │       ├── index.ts           # Hook barrel exports
+│   │       ├── useReactionManager.ts # Reaction state management
+│   │       └── useKeyboardHandler.ts # Keyboard input handling
 │   └── types/           # TypeScript type definitions
 │       ├── index.ts     # Barrel exports
 │       ├── slack.ts     # Slack API types

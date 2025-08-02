@@ -1,0 +1,31 @@
+import { useInput } from "ink";
+
+interface UseKeyboardHandlerProps {
+  isProcessing: boolean;
+  onToggleColorMode: () => void;
+  onRemoveLastReaction: () => void;
+  onExit: () => void;
+  onAddReaction: (letter: string) => void;
+}
+
+export function useKeyboardHandler({
+  isProcessing,
+  onToggleColorMode,
+  onRemoveLastReaction,
+  onExit,
+  onAddReaction,
+}: UseKeyboardHandlerProps) {
+  useInput((input, key) => {
+    if (isProcessing) return;
+
+    if (key.ctrl && input === "t") {
+      onToggleColorMode();
+    } else if (key.backspace) {
+      onRemoveLastReaction();
+    } else if (key.escape || key.return) {
+      onExit();
+    } else if (input && /^[a-zA-Z]$/.test(input)) {
+      onAddReaction(input);
+    }
+  });
+}
