@@ -25,7 +25,8 @@ code in this repository.
 - Manual builds: Use `deno compile` with appropriate `--target` flags for
   different platforms
 - Requires permissions:
-  `--allow-net=slack.com --allow-env=SLACK_TOKEN,HOME,USERPROFILE,NODE_ENV,TERM_PROGRAM,TERM,COLORTERM,FORCE_COLOR --allow-read=$HOME/.netrc`
+  `--allow-net=slack.com --allow-env=SLACK_TOKEN,HOME,USERPROFILE,NODE_ENV,TERM_PROGRAM,TERM,COLORTERM,FORCE_COLOR,CI --allow-read=$HOME/.netrc`
+- **Environment Variables**: The `CI` variable prevents ci-info from checking dozens of CI environment variables. Run with `CI=false` to avoid permission prompts.
 
 ## Architecture Overview
 
