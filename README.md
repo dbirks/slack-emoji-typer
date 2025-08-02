@@ -71,7 +71,7 @@ export SLACK_TOKEN="xoxc-your-token-here"
 Add to your `~/.netrc` file:
 
 ```
-machine slack.com login xoxc-your-token-here password dummy
+machine slack.com login xoxc-your-token-here
 ```
 
 ### Getting Your Slack Token

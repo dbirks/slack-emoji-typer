@@ -71,8 +71,7 @@ code in this repository.
 **Authentication Strategy**:
 
 - Priority: Environment variable (`SLACK_TOKEN`) → .netrc file → error
-- .netrc parsing expects format:
-  `machine slack.com login <token> password dummy`
+- .netrc parsing expects format: `machine slack.com login <token>`
 - Uses Slack user tokens (xoxc-*) rather than bot tokens
 
 ### URL Format Support

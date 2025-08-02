@@ -26,7 +26,7 @@ export async function getSlackToken(): Promise<string> {
 
   throw new Error(
     "Slack token not found. Please set SLACK_TOKEN environment variable or add credentials to ~/.netrc file.\n" +
-      "For .netrc, add line: machine slack.com login your-token-here password dummy",
+      "For .netrc, add line: machine slack.com login your-token-here",
   );
 }
 
