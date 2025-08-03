@@ -180,11 +180,14 @@ export function parseExistingAlphabetReactions(reactions: SlackReaction[]): Type
       const upperLetter = letter.toUpperCase();
       const emojiName = getEmojiName(letter.toLowerCase(), color);
       
-      alphabetReactions.push({
-        char: upperLetter,
-        color,
-        emojiName,
-      });
+      // Handle reactions with count > 1 (duplicate letters)
+      for (let i = 0; i < reaction.count; i++) {
+        alphabetReactions.push({
+          char: upperLetter,
+          color,
+          emojiName,
+        });
+      }
     }
   }
   
