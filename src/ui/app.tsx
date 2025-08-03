@@ -1,5 +1,4 @@
 import { Box, render } from "ink";
-import useStdoutDimensions from "ink-use-stdout-dimensions";
 import { parseExistingAlphabetReactions, type SlackApiClient } from "../lib/index.ts";
 import type { SlackMessage, SlackUser } from "../types/index.ts";
 import {
@@ -21,9 +20,6 @@ interface AppProps {
 export function App(
   { slackClient, channelId, messageTs, message, author }: AppProps,
 ) {
-  // Enable automatic redraw on terminal resize
-  useStdoutDimensions();
-
   // Parse existing alphabet emoji reactions from the message
   const initialTypedLetters = message.reactions
     ? parseExistingAlphabetReactions(message.reactions)

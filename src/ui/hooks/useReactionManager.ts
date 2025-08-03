@@ -105,6 +105,7 @@ export function useReactionManager(
     setIsProcessing(true);
     const lastLetter = typedLetters[typedLetters.length - 1];
 
+    console.log(`🔍 DEBUG: Removing reaction - ${lastLetter.char} (${lastLetter.emojiName}) from channel ${channelId}, message ${messageTs}`);
     setStatus(`Removing ${lastLetter.char}...`);
 
     const result = await slackClient.removeReaction(
@@ -113,16 +114,21 @@ export function useReactionManager(
       lastLetter.emojiName,
     );
 
+    console.log(`🔍 DEBUG: Remove reaction result:`, result);
+
     if (result.ok) {
       setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
       setStatus("");
+      console.log(`🔍 DEBUG: Successfully removed ${lastLetter.char}`);
     } else {
       if (result.error === "no_reaction") {
         setStatus(`Reaction ${lastLetter.char} was already removed.`);
         // Remove from local state anyway since it's not there
         setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
+        console.log(`🔍 DEBUG: Reaction ${lastLetter.char} was already removed from Slack`);
       } else {
         setStatus(`Error removing ${lastLetter.char}: ${result.error}`);
+        console.log(`🔍 DEBUG: Error removing ${lastLetter.char}:`, result.error);
       }
     }
 
