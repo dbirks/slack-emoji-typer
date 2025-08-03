@@ -60,7 +60,14 @@ export function useReactionManager(
     const color = getCurrentColor(letterIndex);
     const emojiName = getEmojiName(letter, color);
 
-    setStatus(`Adding ${letter.toUpperCase()}...`);
+    // Add letter immediately as pending
+    const pendingLetter: TypedLetter = {
+      char: letter.toUpperCase(),
+      color,
+      emojiName,
+      pending: true,
+    };
+    setTypedLetters((prev: TypedLetter[]) => [...prev, pendingLetter]);
 
     const result = await slackClient.addReaction(
       channelId,
@@ -69,14 +76,19 @@ export function useReactionManager(
     );
 
     if (result.ok) {
-      const newLetter: TypedLetter = {
-        char: letter.toUpperCase(),
-        color,
-        emojiName,
-      };
-      setTypedLetters((prev: TypedLetter[]) => [...prev, newLetter]);
+      // Update the letter to confirmed (remove pending state)
+      setTypedLetters((prev: TypedLetter[]) => 
+        prev.map((letter, index) => 
+          index === prev.length - 1 
+            ? { ...letter, pending: false }
+            : letter
+        )
+      );
       setStatus("");
     } else {
+      // Remove the pending letter and show error
+      setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
+      
       if (result.error === "already_reacted") {
         setStatus(
           `${letter.toUpperCase()} already added. Use backspace to remove or try different color.`,
@@ -104,8 +116,6 @@ export function useReactionManager(
 
     setIsProcessing(true);
     const lastLetter = typedLetters[typedLetters.length - 1];
-
-    setStatus(`Removing ${lastLetter.char}...`);
 
     const result = await slackClient.removeReaction(
       channelId,

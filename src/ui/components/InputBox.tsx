@@ -17,6 +17,11 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
   };
 
   const getLetterColor = (letter: TypedLetter): string => {
+    if (letter.pending) {
+      // Dimmed colors for pending letters
+      return letter.color === "orange" ? "#CC6600" : "gray";
+    }
+    // Normal colors for confirmed letters
     return letter.color === "orange" ? "#FF8800" : "white";
   };
 
