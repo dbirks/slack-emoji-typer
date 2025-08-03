@@ -131,24 +131,17 @@ export class SlackApiClient {
     emojiName: string,
   ): Promise<SlackApiResponse<void>> {
     try {
-      const requestBody = {
-        channel: channelId,
-        timestamp: messageTs,
-        name: emojiName,
-      };
-      
-      console.log(`🔍 DEBUG: Slack API removeReaction request:`, requestBody);
-      
       const response = await fetch(`${this.baseUrl}/reactions.remove`, {
         method: "POST",
         headers: this.getHeaders(),
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          channel: channelId,
+          timestamp: messageTs,
+          name: emojiName,
+        }),
       });
 
-      console.log(`🔍 DEBUG: Slack API removeReaction response status:`, response.status);
-      
       const data = await response.json();
-      console.log(`🔍 DEBUG: Slack API removeReaction response data:`, data);
 
       if (!data.ok) {
         return { ok: false, error: data.error || "Unknown error" };
@@ -156,7 +149,6 @@ export class SlackApiClient {
 
       return { ok: true };
     } catch (error) {
-      console.log(`🔍 DEBUG: Slack API removeReaction network error:`, error);
       return {
         ok: false,
         error: `Network error: ${

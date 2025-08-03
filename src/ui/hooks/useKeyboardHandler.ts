@@ -20,7 +20,7 @@ export function useKeyboardHandler({
 
     if (key.shift && key.tab) {
       onToggleColorMode();
-    } else if (key.backspace) {
+    } else if (key.backspace || key.delete) {
       onRemoveLastReaction();
     } else if (key.escape || key.return) {
       onExit();
