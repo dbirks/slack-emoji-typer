@@ -74,7 +74,6 @@ function parseNetrcForSlack(content: string): string | null {
 async function extractTokenFromCookie(cookie: string, workspaceUrl?: string): Promise<string> {
   // Use provided workspace URL or fall back to environment variable
   const finalWorkspaceUrl = workspaceUrl || Deno.env.get("SLACK_WORKSPACE_URL");
-  console.log(`🌐 Using workspace URL: ${finalWorkspaceUrl}`);
   
   if (!finalWorkspaceUrl) {
     throw new Error("Workspace URL is required when using SLACK_API_COOKIE. Either provide it in the Slack message URL or set SLACK_WORKSPACE_URL environment variable");

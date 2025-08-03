@@ -12,11 +12,27 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
       user.real_name || user.name;
   };
 
+  const formatTime = (timestamp: string): string => {
+    // Convert Slack timestamp (seconds.microseconds) to Date
+    const date = new Date(parseFloat(timestamp) * 1000);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
     <Box borderStyle="round" padding={1} marginBottom={1}>
-      <Text>
-        <Text color="cyan" bold>{getDisplayName(author)}:</Text> {message.text}
-      </Text>
+      <Box flexDirection="column">
+        <Box>
+          <Text color="cyan" bold>{getDisplayName(author)}</Text>
+          <Text color="gray" dimColor> {formatTime(message.ts)}</Text>
+        </Box>
+        <Box marginTop={1}>
+          <Text>{message.text}</Text>
+        </Box>
+      </Box>
     </Box>
   );
 }
