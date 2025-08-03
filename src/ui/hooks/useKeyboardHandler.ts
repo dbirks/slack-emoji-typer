@@ -18,7 +18,7 @@ export function useKeyboardHandler({
   useInput((input, key) => {
     if (isProcessing) return;
 
-    if (key.ctrl && input === "t") {
+    if (key.shift && key.tab) {
       onToggleColorMode();
     } else if (key.backspace) {
       onRemoveLastReaction();

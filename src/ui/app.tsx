@@ -4,7 +4,7 @@ import type { SlackMessage, SlackUser } from "../types/index.ts";
 import {
   HelpText,
   MessageDisplay,
-  StatusBar,
+  InputBox,
   StatusMessage,
 } from "./components/index.ts";
 import { useKeyboardHandler, useReactionManager } from "./hooks/index.ts";
@@ -52,7 +52,7 @@ export function App(
   return (
     <Box flexDirection="column" padding={1}>
       <MessageDisplay message={message} author={author} />
-      <StatusBar colorMode={colorMode} typedLetters={typedLetters} />
+      <InputBox colorMode={colorMode} typedLetters={typedLetters} />
       <StatusMessage message={status} />
       <HelpText />
     </Box>
