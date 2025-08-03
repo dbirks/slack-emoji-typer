@@ -16,26 +16,18 @@ export async function main() {
     const slackUrl = args[0];
 
     // Parse the Slack URL to extract channel ID and message timestamp
-    console.log("Parsing Slack URL...");
     const { channelId, messageTs } = parseSlackUrl(slackUrl);
 
     // Extract workspace URL from the Slack URL for cookie authentication  
     const workspaceUrl = extractWorkspaceUrl(slackUrl);
-    if (workspaceUrl) {
-      console.log(`🌐 Extracted workspace URL: ${workspaceUrl}`);
-    } else {
-      console.log("⚠️  Could not extract workspace URL from Slack URL - will use SLACK_WORKSPACE_URL env var");
-    }
 
     // Get Slack authentication token
-    console.log("Authenticating with Slack...");
     const token = await getSlackToken(workspaceUrl || undefined);
 
     // Initialize Slack API client
     const slackClient = new SlackApiClient(token);
 
     // Fetch the message details
-    console.log("Fetching message details...");
     const messageResult = await slackClient.fetchMessage(channelId, messageTs);
 
     if (!messageResult.ok) {
@@ -46,7 +38,6 @@ export async function main() {
     const message = messageResult.data!;
 
     // Fetch user details for the message author
-    console.log("Fetching author details...");
     const userResult = await slackClient.fetchUser(message.user);
 
     if (!userResult.ok) {
