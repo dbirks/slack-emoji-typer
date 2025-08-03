@@ -95,7 +95,7 @@ export function extractWorkspaceUrl(url: string): string | null {
     }
 
     return null; // Can't determine workspace URL
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

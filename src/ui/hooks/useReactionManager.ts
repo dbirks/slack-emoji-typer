@@ -1,23 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "ink";
-import { getEmojiName, SlackApiClient } from "../../lib/index.ts";
+import { getEmojiName, type SlackApiClient } from "../../lib/index.ts";
 import type { ColorMode, TypedLetter } from "../../types/index.ts";
 
 interface UseReactionManagerProps {
   slackClient: SlackApiClient;
   channelId: string;
   messageTs: string;
+  initialTypedLetters?: TypedLetter[];
 }
 
 export function useReactionManager(
-  { slackClient, channelId, messageTs }: UseReactionManagerProps,
+  { slackClient, channelId, messageTs, initialTypedLetters = [] }: UseReactionManagerProps,
 ) {
   const [colorMode, setColorMode] = useState<ColorMode>("white");
-  const [typedLetters, setTypedLetters] = useState<TypedLetter[]>([]);
+  const [typedLetters, setTypedLetters] = useState<TypedLetter[]>(initialTypedLetters);
   const [status, setStatus] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { exit } = useApp();
+
+  // Show status message for existing letters on startup
+  useEffect(() => {
+    if (initialTypedLetters.length > 0) {
+      const letterString = initialTypedLetters.map(l => l.char).join('');
+      setStatus(`Found existing letters: ${letterString}`);
+      
+      // Clear the status after 3 seconds
+      const timer = setTimeout(() => setStatus(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const getCurrentColor = (index: number): "white" | "orange" => {
     if (colorMode === "white") return "white";

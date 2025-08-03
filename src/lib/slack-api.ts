@@ -2,7 +2,9 @@ import type {
   SlackApiResponse,
   SlackMessage,
   SlackUser,
+  SlackReaction,
 } from "../types/slack.ts";
+import type { TypedLetter } from "../types/index.ts";
 import { getSlackCookie } from "./auth.ts";
 
 export class SlackApiClient {
@@ -164,4 +166,27 @@ export function getEmojiName(
   const lowerLetter = letter.toLowerCase();
   const prefix = colorMode === "white" ? "alphabet-white-" : "alphabet-yellow-";
   return `${prefix}${lowerLetter}`;
+}
+
+export function parseExistingAlphabetReactions(reactions: SlackReaction[]): TypedLetter[] {
+  const alphabetReactions: TypedLetter[] = [];
+  
+  // Process reactions in order to preserve sequence
+  for (const reaction of reactions) {
+    const match = reaction.name.match(/^alphabet-(white|yellow)-([a-z])$/);
+    if (match) {
+      const [, colorStr, letter] = match;
+      const color = colorStr === "white" ? "white" : "orange";
+      const upperLetter = letter.toUpperCase();
+      const emojiName = getEmojiName(letter.toLowerCase(), color);
+      
+      alphabetReactions.push({
+        char: upperLetter,
+        color,
+        emojiName,
+      });
+    }
+  }
+  
+  return alphabetReactions;
 }

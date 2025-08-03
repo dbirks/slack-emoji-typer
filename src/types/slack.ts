@@ -1,7 +1,14 @@
+export interface SlackReaction {
+  name: string;
+  users: string[];
+  count: number;
+}
+
 export interface SlackMessage {
   text: string;
   user: string;
   ts: string;
+  reactions?: SlackReaction[];
 }
 
 export interface SlackUser {
