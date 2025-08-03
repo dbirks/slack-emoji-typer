@@ -5,4 +5,5 @@ export interface TypedLetter {
   color: "white" | "orange";
   emojiName: string;
   pending?: boolean;
+  removing?: boolean;
 }

@@ -117,6 +117,15 @@ export function useReactionManager(
     setIsProcessing(true);
     const lastLetter = typedLetters[typedLetters.length - 1];
 
+    // Mark the last letter as removing immediately
+    setTypedLetters((prev: TypedLetter[]) => 
+      prev.map((letter, index) => 
+        index === prev.length - 1 
+          ? { ...letter, removing: true }
+          : letter
+      )
+    );
+
     const result = await slackClient.removeReaction(
       channelId,
       messageTs,
@@ -124,6 +133,7 @@ export function useReactionManager(
     );
 
     if (result.ok) {
+      // Remove the letter from UI after API confirms
       setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
       setStatus("");
     } else {
@@ -132,6 +142,14 @@ export function useReactionManager(
         // Remove from local state anyway since it's not there
         setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
       } else {
+        // Restore the letter (remove removing state) if error occurred
+        setTypedLetters((prev: TypedLetter[]) => 
+          prev.map((letter, index) => 
+            index === prev.length - 1 
+              ? { ...letter, removing: false }
+              : letter
+          )
+        );
         setStatus(`Error removing ${lastLetter.char}: ${result.error}`);
       }
     }
