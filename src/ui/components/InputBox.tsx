@@ -17,7 +17,7 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
   };
 
   const getLetterColor = (letter: TypedLetter): string => {
-    return letter.color === "orange" ? "yellow" : "white";
+    return letter.color === "orange" ? "#FF8800" : "white";
   };
 
   return (
@@ -26,7 +26,7 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
       <Box borderStyle="single" paddingX={1}>
         <Text color="green">&gt; </Text>
         {typedLetters.map((letter: TypedLetter, index: number) => (
-          <Text key={index} color={getLetterColor(letter)}>
+          <Text key={index} color={getLetterColor(letter)} bold>
             {letter.char}
           </Text>
         ))}

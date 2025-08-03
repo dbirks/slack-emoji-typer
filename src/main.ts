@@ -56,7 +56,6 @@ export async function main() {
 
     // Clear console and start the interactive UI
     console.clear();
-    console.log("🎉 Ready! Starting interactive mode...\n");
 
     // Render the interactive UI
     await renderApp(slackClient, channelId, messageTs, message, author);

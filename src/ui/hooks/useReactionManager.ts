@@ -50,18 +50,6 @@ export function useReactionManager(
           return "white";
       }
     });
-
-    const modeLabels = {
-      white: "White",
-      orange: "Orange",
-      alternate: "Alternating",
-    };
-    const newMode = colorMode === "white"
-      ? "orange"
-      : colorMode === "orange"
-      ? "alternate"
-      : "white";
-    setStatus(`Switched to ${modeLabels[newMode]} mode`);
   };
 
   const addReaction = async (letter: string) => {
