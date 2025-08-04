@@ -86,10 +86,6 @@ export function useReactionManager(
 
   const removeLastReaction = async () => {
     if (isProcessing || typedLetters.length === 0) {
-      if (typedLetters.length === 0) {
-        exit();
-        return;
-      }
       return;
     }
 
