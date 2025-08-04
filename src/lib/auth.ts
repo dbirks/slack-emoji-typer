@@ -1,39 +1,16 @@
 export async function getSlackToken(workspaceUrl?: string): Promise<string> {
-  // First, try environment variable
-  let cookie = Deno.env.get("SLACK_API_COOKIE");
-
-  // If not found, try .netrc file using netrc-parser library
-  if (!cookie) {
-    try {
-      // Import netrc-parser only when needed to avoid side effects
-      const { default: netrc } = await import("npm:netrc-parser");
-      const homeDir = Deno.env.get("HOME") || Deno.env.get("USERPROFILE");
-      if (!homeDir) {
-        throw new Error("Could not determine home directory");
-      }
-
-      const netrcPath = `${homeDir}/.netrc`;
-      const netrcContent = await Deno.readTextFile(netrcPath);
-      const parsed = netrc.parse(netrcContent);
-
-      if (parsed["slack.com"] && parsed["slack.com"].login) {
-        cookie = parsed["slack.com"].login;
-      }
-    } catch (_error) {
-      // .netrc file doesn't exist or can't be read
-    }
-  }
+  // Get Slack session cookie from environment variable
+  const cookie = Deno.env.get("SLACK_API_COOKIE");
 
   if (!cookie) {
     throw new Error(
-      "Slack cookie not found. Please set SLACK_API_COOKIE environment variable or add to ~/.netrc file.\n" +
+      "Slack cookie not found. Please set SLACK_API_COOKIE environment variable.\n" +
         "To get your cookie:\n" +
         "1. Open your Slack workspace in a browser\n" +
         "2. Open developer tools (F12)\n" +
         "3. Go to Application/Storage → Cookies → your workspace domain\n" +
         "4. Find the cookie named 'd' and copy its value\n" +
-        "5. Either set SLACK_API_COOKIE=<cookie-value> or add to ~/.netrc:\n" +
-        "   machine slack.com login <cookie-value>",
+        "5. Set SLACK_API_COOKIE=<cookie-value>",
     );
   }
 
