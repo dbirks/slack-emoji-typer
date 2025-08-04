@@ -1,4 +1,4 @@
-export type ColorMode = "white" | "orange" | "alternate";
+export type ColorMode = "white" | "orange";
 
 export interface TypedLetter {
   char: string;

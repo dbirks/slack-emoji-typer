@@ -8,25 +8,11 @@ interface InputBoxProps {
 
 export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
   const getModeLabel = (): string => {
-    const labels = {
-      white: "white",
-      orange: "orange", 
-      alternate: "alternating",
-    };
-    return labels[colorMode as keyof typeof labels];
+    return colorMode;
   };
 
   const getBorderColor = (): string => {
-    switch (colorMode) {
-      case "white":
-        return "white";
-      case "orange":
-        return "#FF8800";
-      case "alternate":
-        return "magenta"; // Different color for alternating mode
-      default:
-        return "white";
-    }
+    return colorMode === "white" ? "white" : "#FF8800";
   };
 
   const getLetterColor = (letter: TypedLetter): string => {

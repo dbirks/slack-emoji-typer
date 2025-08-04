@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useApp } from "ink";
 import { getEmojiName, type SlackApiClient } from "../../lib/index.ts";
 import type { ColorMode, TypedLetter } from "../../types/index.ts";
@@ -21,23 +21,13 @@ export function useReactionManager(
   const { exit } = useApp();
 
 
-  const getCurrentColor = (index: number): "white" | "orange" => {
-    if (colorMode === "white") return "white";
-    if (colorMode === "orange") return "orange";
-    // Alternate mode: even indices use white, odd use orange
-    return index % 2 === 0 ? "white" : "orange";
+  const getCurrentColor = (_index: number): "white" | "orange" => {
+    return colorMode;
   };
 
   const toggleColorMode = () => {
     setColorMode((current: ColorMode) => {
-      switch (current) {
-        case "white":
-          return "orange";
-        case "orange":
-          return "alternate";
-        case "alternate":
-          return "white";
-      }
+      return current === "white" ? "orange" : "white";
     });
   };
 
