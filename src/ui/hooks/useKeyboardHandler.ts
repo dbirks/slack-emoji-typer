@@ -22,7 +22,7 @@ export function useKeyboardHandler({
       onToggleColorMode();
     } else if (key.backspace || key.delete) {
       onRemoveLastReaction();
-    } else if (key.escape || key.return) {
+    } else if (key.escape) {
       onExit();
     } else if (input) {
       // Check for letters and symbols

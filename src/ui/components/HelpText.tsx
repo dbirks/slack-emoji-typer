@@ -5,7 +5,7 @@ export function HelpText() {
     <Box>
       <Text color="gray">
         Type letters (A-Z) or symbols (@!?#) to attach emojis, Backspace/Delete
-        to undo, Enter/Esc to exit
+        to undo, Esc to exit
       </Text>
     </Box>
   );

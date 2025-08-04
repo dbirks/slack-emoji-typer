@@ -59,9 +59,6 @@ export async function main() {
       profile: { display_name: message.user, real_name: message.user },
     };
 
-    // Clear console and start the interactive UI
-    console.clear();
-
     // Render the interactive UI
     await renderApp(slackClient, channelId, messageTs, message, author);
   } catch (error) {
