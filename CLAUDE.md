@@ -6,10 +6,12 @@ code in this repository.
 ## Development Workflow
 
 **CRITICAL: Always run these commands after making code changes:**
+
 1. `deno fmt` - Format all files (auto-fixes formatting issues)
 2. `deno task build` - Verify the project compiles without errors
 3. `deno lint` - Check for linting issues (optional but recommended)
-4. `deno check src/main.ts` - Type check the entire project (optional but recommended)
+4. `deno check src/main.ts` - Type check the entire project (optional but
+   recommended)
 
 **Never commit changes without formatting and building first!**
 
