@@ -77,9 +77,6 @@ export async function renderApp(
       message={message}
       author={author}
     />,
-    {
-      debug: true,
-    },
   );
 
   await waitUntilExit();
