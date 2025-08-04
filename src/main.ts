@@ -79,7 +79,7 @@ function handleSlackError(operation: string, error: string) {
         "Authentication failed. Please check your Slack token (it may be expired or invalid).",
       );
       console.error(
-        "Make sure to set SLACK_TOKEN environment variable or add credentials to ~/.netrc",
+        "Make sure to set SLACK_API_COOKIE environment variable or add credentials to ~/.netrc",
       );
       break;
 

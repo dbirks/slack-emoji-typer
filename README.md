@@ -20,7 +20,7 @@ an interactive React-based CLI interface powered by Ink.
 
 1. **Download** the latest binary for your platform from
    [Releases](../../releases)
-2. **Get your Slack token** (see [Authentication](#authentication) below)
+2. **Get your Slack cookie** (see [Authentication](#authentication) below)
 3. **Run** the tool with a Slack message URL:
 
 ```bash
@@ -57,13 +57,13 @@ deno task build
 
 ## Authentication
 
-You need a Slack user token to use this tool. The token should start with
-`xoxc-`.
+You need a Slack session cookie to use this tool. The cookie should start with
+`xoxd-`.
 
 ### Option 1: Environment Variable
 
 ```bash
-export SLACK_TOKEN="xoxc-your-token-here"
+export SLACK_API_COOKIE="xoxd-your-cookie-here"
 ```
 
 ### Option 2: .netrc File
@@ -71,26 +71,18 @@ export SLACK_TOKEN="xoxc-your-token-here"
 Add to your `~/.netrc` file:
 
 ```
-machine slack.com login xoxc-your-token-here
+machine slack.com login xoxd-your-cookie-here
 ```
 
-### Getting Your Slack Token
+### Getting Your Slack Cookie
 
-⚠️ **Security Warning**: Keep your token secret and never share it.
+⚠️ **Security Warning**: Keep your cookie secret and never share it.
 
-1. Open Slack in your web browser
+1. Open your Slack workspace in a web browser
 2. Open Developer Tools (F12)
-3. Go to the Network tab
-4. Refresh the page or perform any action
-5. Look for requests to `slack.com/api/`
-6. In the request headers, find the `Authorization: Bearer xoxc-...` header
-7. Copy the token (everything after `Bearer`)
-
-Alternative method using cookies:
-
-1. Open Developer Tools → Application/Storage tab
-2. Find the `d` cookie for your Slack workspace
-3. The value starts with `xoxc-`
+3. Go to Application/Storage → Cookies → your workspace domain
+4. Find the cookie named `d` and copy its value
+5. The cookie value starts with `xoxd-`
 
 ## Usage
 
@@ -208,7 +200,7 @@ deno task fmt
 
 The tool provides clear error messages for common issues:
 
-- **Authentication failed**: Check your token validity
+- **Authentication failed**: Check your cookie validity
 - **Channel not found**: Verify channel access and URL
 - **Message not found**: Check if message exists and URL is correct
 - **Emoji not found**: Ensure alphabet emoji packs are installed
