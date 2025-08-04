@@ -18,9 +18,6 @@ export function useKeyboardHandler({
   useInput((input, key) => {
     if (isProcessing) return;
 
-    // Debug logging to see what we're receiving
-    console.log(`Debug - input: "${input}", key:`, key);
-
     if (key.shift && key.tab) {
       onToggleColorMode();
     } else if (key.backspace || key.delete) {
@@ -44,6 +41,16 @@ export function useKeyboardHandler({
       } else if (input === '3' && key.shift) {
         onAddReaction('#');
       } else if ((input === '/' && key.shift) || input === '?') {
+        onAddReaction('?');
+      }
+      // Easy-to-type number alternatives (without shift)
+      else if (input === '1') {
+        onAddReaction('!');
+      } else if (input === '2') {
+        onAddReaction('@');
+      } else if (input === '3') {
+        onAddReaction('#');
+      } else if (input === '0') {
         onAddReaction('?');
       }
     }

@@ -96,7 +96,8 @@ slack-emoji-typer "https://yourworkspace.slack.com/archives/C12345678/p167253498
 
 Once the interactive mode starts:
 
-- **Letter keys (A-Z) and symbols (@!?#)**: Add corresponding emoji reactions
+- **Letter keys (A-Z)**: Add corresponding emoji reactions
+- **Number keys for symbols**: 1=!, 2=@, 3=#, 0=? (easy shortcuts for symbol emojis)
 - **Backspace**: Remove the last emoji reaction
 - **Ctrl+T**: Toggle emoji color mode (White → Orange → Alternating → White)
 - **Enter/Esc**: Exit the application
