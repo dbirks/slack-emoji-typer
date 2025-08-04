@@ -20,17 +20,6 @@ export function useReactionManager(
 
   const { exit } = useApp();
 
-  // Show status message for existing letters on startup
-  useEffect(() => {
-    if (initialTypedLetters.length > 0) {
-      const letterString = initialTypedLetters.map(l => l.char).join('');
-      setStatus(`Found existing letters: ${letterString}`);
-      
-      // Clear the status after 3 seconds
-      const timer = setTimeout(() => setStatus(""), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   const getCurrentColor = (index: number): "white" | "orange" => {
     if (colorMode === "white") return "white";
