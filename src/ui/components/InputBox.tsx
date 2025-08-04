@@ -15,6 +15,10 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
     return colorMode === "white" ? "white" : "#FF8800";
   };
 
+  const getPromptColor = (): string => {
+    return colorMode === "white" ? "white" : "#FF8800";
+  };
+
   const getLetterColor = (letter: TypedLetter): string => {
     if (letter.pending || letter.removing) {
       // Dimmed colors for pending/removing letters
@@ -28,7 +32,7 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
     <Box flexDirection="column" marginBottom={1}>
       {/* Input box with border */}
       <Box borderStyle="bold" borderColor={getBorderColor()} paddingX={1}>
-        <Text color="green">{"> "}</Text>
+        <Text color={getPromptColor()}>{"> "}</Text>
         {typedLetters.map((letter: TypedLetter, index: number) => (
           <Text key={index} color={getLetterColor(letter)} bold>
             {letter.char}
