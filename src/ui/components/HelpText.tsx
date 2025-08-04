@@ -4,8 +4,8 @@ export function HelpText() {
   return (
     <Box>
       <Text color="gray">
-        (Type letters (A-Z) or symbols (@!?#) to attach emojis, Backspace/Delete
-        to undo, Enter/Esc to exit)
+        Type letters (A-Z) or symbols (@!?#) to attach emojis, Backspace/Delete
+        to undo, Enter/Esc to exit
       </Text>
     </Box>
   );
