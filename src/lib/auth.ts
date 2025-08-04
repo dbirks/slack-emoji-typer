@@ -2,9 +2,10 @@ export async function getSlackToken(workspaceUrl?: string): Promise<string> {
   // First, try environment variable
   let cookie = Deno.env.get("SLACK_API_COOKIE");
 
-  // If not found, try .netrc file
+  // If not found, try .netrc file using netrc-parser library
   if (!cookie) {
     try {
+      const netrc = await import("npm:netrc-parser");
       const homeDir = Deno.env.get("HOME") || Deno.env.get("USERPROFILE");
       if (!homeDir) {
         throw new Error("Could not determine home directory");
@@ -12,7 +13,11 @@ export async function getSlackToken(workspaceUrl?: string): Promise<string> {
 
       const netrcPath = `${homeDir}/.netrc`;
       const netrcContent = await Deno.readTextFile(netrcPath);
-      cookie = parseNetrcForSlack(netrcContent) || undefined;
+      const parsed = netrc.parse(netrcContent);
+
+      if (parsed["slack.com"] && parsed["slack.com"].login) {
+        cookie = parsed["slack.com"].login;
+      }
     } catch (_error) {
       // .netrc file doesn't exist or can't be read
     }
@@ -41,38 +46,6 @@ export async function getSlackToken(workspaceUrl?: string): Promise<string> {
       }`,
     );
   }
-}
-
-function parseNetrcForSlack(content: string): string | null {
-  const lines = content.split(/\r?\n/);
-  let inSlackMachine = false;
-  let token: string | null = null;
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-
-    const parts = trimmed.split(/\s+/);
-
-    if (parts[0] === "machine" && parts[1] === "slack.com") {
-      inSlackMachine = true;
-      continue;
-    }
-
-    if (inSlackMachine) {
-      if (parts[0] === "machine") {
-        // Started a new machine block, stop looking
-        break;
-      }
-
-      if (parts[0] === "login" && parts[1]) {
-        token = parts[1];
-        break;
-      }
-    }
-  }
-
-  return token;
 }
 
 async function extractTokenFromCookie(
