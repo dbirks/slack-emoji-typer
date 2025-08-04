@@ -24,7 +24,7 @@ export function useKeyboardHandler({
       onRemoveLastReaction();
     } else if (key.escape || key.return) {
       onExit();
-    } else if (input && /^[a-zA-Z]$/.test(input)) {
+    } else if (input && /^[a-zA-Z@!?#]$/.test(input)) {
       onAddReaction(input);
     }
   });
