@@ -12,11 +12,11 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
   };
 
   const getBorderColor = (): string => {
-    return colorMode === "white" ? "white" : "#FF8800";
+    return colorMode === "white" ? "whiteBright" : "#FF8800";
   };
 
   const getPromptColor = (): string => {
-    return colorMode === "white" ? "white" : "#FF8800";
+    return colorMode === "white" ? "whiteBright" : "#FF8800";
   };
 
   const getLetterColor = (letter: TypedLetter): string => {
@@ -25,7 +25,7 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
       return letter.color === "orange" ? "#CC6600" : "gray";
     }
     // Normal colors for confirmed letters
-    return letter.color === "orange" ? "#FF8800" : "white";
+    return letter.color === "orange" ? "#FF8800" : "whiteBright";
   };
 
   return (
