@@ -59,8 +59,6 @@ export async function main() {
 
     // Render the interactive UI
     await renderApp(slackClient, channelId, messageTs, message, author);
-
-    console.log("\n👋 Goodbye!");
   } catch (error) {
     console.error(
       `❌ Error: ${error instanceof Error ? error.message : String(error)}`,
