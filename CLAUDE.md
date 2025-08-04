@@ -187,12 +187,6 @@ On startup, the app automatically:
   Intel/ARM, Windows)
 - **Output**: Single binary with embedded dependencies (~22MB with React/Ink)
 
-# important-instruction-reminders
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-
 ## Ink Documentation References
 
 When working with Ink React terminal UI components, refer to these sources:
