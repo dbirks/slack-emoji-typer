@@ -3,6 +3,16 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with
 code in this repository.
 
+## Development Workflow
+
+**CRITICAL: Always run these commands after making code changes:**
+1. `deno fmt` - Format all files (auto-fixes formatting issues)
+2. `deno task build` - Verify the project compiles without errors
+3. `deno lint` - Check for linting issues (optional but recommended)
+4. `deno check src/main.ts` - Type check the entire project (optional but recommended)
+
+**Never commit changes without formatting and building first!**
+
 ## Common Commands
 
 ### Development
@@ -59,26 +69,32 @@ code in this repository.
   - `StatusMessage`: Shows status updates and error messages
   - `HelpText`: Static command help text
 - **Hooks** (`hooks/`): Custom React hooks for state and behavior
-  - `useReactionManager`: Manages emoji reactions, color modes, pending states, and API calls
-  - `useKeyboardHandler`: Handles all keyboard input events including Shift+Tab and Delete/Backspace
+  - `useReactionManager`: Manages emoji reactions, color modes, pending states,
+    and API calls
+  - `useKeyboardHandler`: Handles all keyboard input events including Shift+Tab
+    and Delete/Backspace
 
 **Type Definitions** (`src/types/`):
 
 - `slack.ts`: Slack API response types and interfaces
-- `ui.ts`: UI component types (ColorMode, TypedLetter with pending/removing states)
+- `ui.ts`: UI component types (ColorMode, TypedLetter with pending/removing
+  states)
 - `index.ts`: Barrel exports for all types
 
 **Authentication Strategy**:
 
-- **Cookie-only authentication**: Uses session cookie to extract token dynamically
+- **Cookie-only authentication**: Uses session cookie to extract token
+  dynamically
 - Priority: `SLACK_API_COOKIE` environment variable → .netrc file → error
-- Workspace URL is automatically extracted from the Slack message URL (for archive format)
+- Workspace URL is automatically extracted from the Slack message URL (for
+  archive format)
 - .netrc format: `machine slack.com login <cookie-value>`
 - Extracts Slack user tokens (xoxc-*) from workspace pages using session cookie
-- For app.slack.com URLs, `SLACK_WORKSPACE_URL` environment variable is still required
+- For app.slack.com URLs, `SLACK_WORKSPACE_URL` environment variable is still
+  required
 
-**Cookie Setup**:
-To get your Slack session cookie:
+**Cookie Setup**: To get your Slack session cookie:
+
 1. Open your Slack workspace in a web browser
 2. Open developer tools (F12)
 3. Go to Application/Storage → Cookies → your workspace domain
@@ -86,7 +102,8 @@ To get your Slack session cookie:
 5. **Option A**: Set environment variable `SLACK_API_COOKIE=<cookie-value>`
 6. **Option B**: Add to ~/.netrc file: `machine slack.com login <cookie-value>`
 7. The workspace URL will be automatically extracted from archive-format URLs
-8. For app.slack.com URLs, also set `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
+8. For app.slack.com URLs, also set
+   `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
 
 ### URL Format Support
 
@@ -135,23 +152,27 @@ To get your Slack session cookie:
 
 ### Modern Pending State System
 
-The application implements an elegant pending state system for all user interactions:
+The application implements an elegant pending state system for all user
+interactions:
 
 **Letter Addition Flow**:
+
 1. User types letter → Letter appears dimmed immediately (pending: true)
 2. Slack API call executes in background
 3. On success → Letter brightens to normal color (pending: false)
 4. On failure → Letter disappears with error message
 
 **Letter Removal Flow**:
+
 1. User presses backspace/delete → Last letter dims immediately (removing: true)
-2. Slack API call executes in background  
+2. Slack API call executes in background
 3. On success → Letter disappears from UI
 4. On failure → Letter un-dims and stays (removing: false) with error message
 
 ### TypedLetter State Management
 
 The `TypedLetter` interface supports multiple states:
+
 - `pending?: boolean` - Letter is being added to Slack
 - `removing?: boolean` - Letter is being removed from Slack
 - Both states render as dimmed colors in the UI
@@ -166,6 +187,7 @@ The `TypedLetter` interface supports multiple states:
 ### Existing Reaction Detection
 
 On startup, the app automatically:
+
 1. Parses existing alphabet emoji reactions from the Slack message
 2. Reconstructs the typed letter sequence including duplicates
 3. Displays "Found existing letters: XYZ" message for 3 seconds
@@ -192,19 +214,31 @@ On startup, the app automatically:
 When working with Ink React terminal UI components, refer to these sources:
 
 ### Primary Documentation
-- **Main Repository**: https://github.com/vadimdemedes/ink - Official Ink repository with API documentation
-- **Ink 3 Features**: https://vadimdemedes.com/posts/ink-3 - Overview of Ink 3 capabilities and improvements
-- **Component Reference**: https://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/ - Comprehensive guide to Ink v3.2.0 components with React, Node.js and TypeScript
+
+- **Main Repository**: https://github.com/vadimdemedes/ink - Official Ink
+  repository with API documentation
+- **Ink 3 Features**: https://vadimdemedes.com/posts/ink-3 - Overview of Ink 3
+  capabilities and improvements
+- **Component Reference**:
+  https://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/ -
+  Comprehensive guide to Ink v3.2.0 components with React, Node.js and
+  TypeScript
 
 ### Border Styles & UI Components
-- **Available borderStyle options**: `single`, `double`, `round`, `bold`, `singleDouble`, `doubleSingle`, `classic`
-- **Border colors**: Use `borderColor` prop with any color value (hex, named colors)
-- **Custom borders**: Pass custom border style objects with specific characters for each border segment
+
+- **Available borderStyle options**: `single`, `double`, `round`, `bold`,
+  `singleDouble`, `doubleSingle`, `classic`
+- **Border colors**: Use `borderColor` prop with any color value (hex, named
+  colors)
+- **Custom borders**: Pass custom border style objects with specific characters
+  for each border segment
 - **Round corners**: Use `borderStyle="round"` for rounded terminal borders
 - **Thick borders**: Use `borderStyle="bold"` for thicker border lines
 
 ### Common UI Patterns
+
 - **Input handling**: `useInput` hook for keyboard events
-- **Focus management**: `useFocus` and `useFocusManager` hooks for tab navigation
+- **Focus management**: `useFocus` and `useFocusManager` hooks for tab
+  navigation
 - **Terminal dimensions**: `useStdout` hook for accessing stdout stream
 - **App lifecycle**: `useApp` hook for exit control

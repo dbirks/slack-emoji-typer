@@ -11,15 +11,17 @@ interface UseReactionManagerProps {
 }
 
 export function useReactionManager(
-  { slackClient, channelId, messageTs, initialTypedLetters = [] }: UseReactionManagerProps,
+  { slackClient, channelId, messageTs, initialTypedLetters = [] }:
+    UseReactionManagerProps,
 ) {
   const [colorMode, setColorMode] = useState<ColorMode>("white");
-  const [typedLetters, setTypedLetters] = useState<TypedLetter[]>(initialTypedLetters);
+  const [typedLetters, setTypedLetters] = useState<TypedLetter[]>(
+    initialTypedLetters,
+  );
   const [status, setStatus] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { exit } = useApp();
-
 
   const getCurrentColor = (_index: number): "white" | "orange" => {
     return colorMode;
@@ -56,18 +58,16 @@ export function useReactionManager(
 
     if (result.ok) {
       // Update the letter to confirmed (remove pending state)
-      setTypedLetters((prev: TypedLetter[]) => 
-        prev.map((letter, index) => 
-          index === prev.length - 1 
-            ? { ...letter, pending: false }
-            : letter
+      setTypedLetters((prev: TypedLetter[]) =>
+        prev.map((letter, index) =>
+          index === prev.length - 1 ? { ...letter, pending: false } : letter
         )
       );
       setStatus("");
     } else {
       // Remove the pending letter and show error
       setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
-      
+
       if (result.error === "already_reacted") {
         setStatus(
           `${letter.toUpperCase()} already added. Use backspace to remove or try different color.`,
@@ -93,11 +93,9 @@ export function useReactionManager(
     const lastLetter = typedLetters[typedLetters.length - 1];
 
     // Mark the last letter as removing immediately
-    setTypedLetters((prev: TypedLetter[]) => 
-      prev.map((letter, index) => 
-        index === prev.length - 1 
-          ? { ...letter, removing: true }
-          : letter
+    setTypedLetters((prev: TypedLetter[]) =>
+      prev.map((letter, index) =>
+        index === prev.length - 1 ? { ...letter, removing: true } : letter
       )
     );
 
@@ -118,11 +116,9 @@ export function useReactionManager(
         setTypedLetters((prev: TypedLetter[]) => prev.slice(0, -1));
       } else {
         // Restore the letter (remove removing state) if error occurred
-        setTypedLetters((prev: TypedLetter[]) => 
-          prev.map((letter, index) => 
-            index === prev.length - 1 
-              ? { ...letter, removing: false }
-              : letter
+        setTypedLetters((prev: TypedLetter[]) =>
+          prev.map((letter, index) =>
+            index === prev.length - 1 ? { ...letter, removing: false } : letter
           )
         );
         setStatus(`Error removing ${lastLetter.char}: ${result.error}`);

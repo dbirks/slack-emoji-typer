@@ -97,7 +97,8 @@ slack-emoji-typer "https://yourworkspace.slack.com/archives/C12345678/p167253498
 Once the interactive mode starts:
 
 - **Letter keys (A-Z)**: Add corresponding emoji reactions
-- **Number keys for symbols**: 1=!, 2=@, 3=#, 0=? (easy shortcuts for symbol emojis)
+- **Number keys for symbols**: 1=!, 2=@, 3=#, 0=? (easy shortcuts for symbol
+  emojis)
 - **Backspace**: Remove the last emoji reaction
 - **Ctrl+T**: Toggle emoji color mode (White → Orange → Alternating → White)
 - **Enter/Esc**: Exit the application
@@ -140,8 +141,10 @@ for emojis named:
 
 - `:alphabet-white-a:` through `:alphabet-white-z:`
 - `:alphabet-yellow-a:` through `:alphabet-yellow-z:`
-- `:alphabet-white-at:`, `:alphabet-white-exclamation:`, `:alphabet-white-question:`, `:alphabet-white-hash:`
-- `:alphabet-yellow-at:`, `:alphabet-yellow-exclamation:`, `:alphabet-yellow-question:`, `:alphabet-yellow-hash:`
+- `:alphabet-white-at:`, `:alphabet-white-exclamation:`,
+  `:alphabet-white-question:`, `:alphabet-white-hash:`
+- `:alphabet-yellow-at:`, `:alphabet-yellow-exclamation:`,
+  `:alphabet-yellow-question:`, `:alphabet-yellow-hash:`
 
 If these emojis don't exist, you'll get "invalid_name" errors.
 

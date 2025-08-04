@@ -1,10 +1,13 @@
 import { Box, render } from "ink";
-import { parseExistingAlphabetReactions, type SlackApiClient } from "../lib/index.ts";
+import {
+  parseExistingAlphabetReactions,
+  type SlackApiClient,
+} from "../lib/index.ts";
 import type { SlackMessage, SlackUser } from "../types/index.ts";
 import {
   HelpText,
-  MessageDisplay,
   InputBox,
+  MessageDisplay,
   StatusMessage,
 } from "./components/index.ts";
 import { useKeyboardHandler, useReactionManager } from "./hooks/index.ts";
@@ -34,11 +37,11 @@ export function App(
     addReaction,
     removeLastReaction,
     exit,
-  } = useReactionManager({ 
-    slackClient, 
-    channelId, 
-    messageTs, 
-    initialTypedLetters 
+  } = useReactionManager({
+    slackClient,
+    channelId,
+    messageTs,
+    initialTypedLetters,
   });
 
   useKeyboardHandler({

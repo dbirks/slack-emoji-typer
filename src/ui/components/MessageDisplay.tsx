@@ -15,10 +15,10 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
   const formatTime = (timestamp: string): string => {
     // Convert Slack timestamp (seconds.microseconds) to Date
     const date = new Date(parseFloat(timestamp) * 1000);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -27,7 +27,7 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
       <Box flexDirection="column">
         <Box>
           <Text color="cyan" bold>{getDisplayName(author)}</Text>
-          <Text color="gray" dimColor> {formatTime(message.ts)}</Text>
+          <Text color="gray" dimColor>{formatTime(message.ts)}</Text>
         </Box>
         <Box marginTop={1}>
           <Text>{message.text}</Text>

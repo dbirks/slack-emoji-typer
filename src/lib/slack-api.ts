@@ -1,8 +1,8 @@
 import type {
   SlackApiResponse,
   SlackMessage,
-  SlackUser,
   SlackReaction,
+  SlackUser,
 } from "../types/slack.ts";
 import type { TypedLetter } from "../types/index.ts";
 import { getSlackCookie } from "./auth.ts";
@@ -164,41 +164,43 @@ export function getEmojiName(
   colorMode: "white" | "orange",
 ): string {
   const prefix = colorMode === "white" ? "alphabet-white-" : "alphabet-yellow-";
-  
+
   // Handle special symbols
   const symbolMap: Record<string, string> = {
-    '@': 'at',
-    '!': 'exclamation',
-    '?': 'question',
-    '#': 'hash',
+    "@": "at",
+    "!": "exclamation",
+    "?": "question",
+    "#": "hash",
   };
-  
+
   const normalizedChar = symbolMap[letter] || letter.toLowerCase();
   return `${prefix}${normalizedChar}`;
 }
 
-export function parseExistingAlphabetReactions(reactions: SlackReaction[]): TypedLetter[] {
+export function parseExistingAlphabetReactions(
+  reactions: SlackReaction[],
+): TypedLetter[] {
   const alphabetReactions: TypedLetter[] = [];
-  
+
   // Reverse symbol map for parsing
   const reverseSymbolMap: Record<string, string> = {
-    'at': '@',
-    'exclamation': '!',
-    'question': '?',
-    'hash': '#',
+    "at": "@",
+    "exclamation": "!",
+    "question": "?",
+    "hash": "#",
   };
-  
+
   // Process reactions in order to preserve sequence
   for (const reaction of reactions) {
     const match = reaction.name.match(/^alphabet-(white|yellow)-([a-z]+)$/);
     if (match) {
       const [, colorStr, emojiSuffix] = match;
       const color = colorStr === "white" ? "white" : "orange";
-      
+
       // Convert emoji suffix back to character
       const char = reverseSymbolMap[emojiSuffix] || emojiSuffix.toUpperCase();
       const emojiName = reaction.name;
-      
+
       // Handle reactions with count > 1 (duplicate characters)
       for (let i = 0; i < reaction.count; i++) {
         alphabetReactions.push({
@@ -209,6 +211,6 @@ export function parseExistingAlphabetReactions(reactions: SlackReaction[]): Type
       }
     }
   }
-  
+
   return alphabetReactions;
 }

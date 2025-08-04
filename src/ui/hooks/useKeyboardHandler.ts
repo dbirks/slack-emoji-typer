@@ -28,30 +28,29 @@ export function useKeyboardHandler({
       // Check for letters first
       if (/^[a-zA-Z]$/.test(input)) {
         onAddReaction(input);
-      }
-      // Check for special characters - handle both direct input and common variations
-      else if (input === '@' || input === '!' || input === '?' || input === '#') {
+      } // Check for special characters - handle both direct input and common variations
+      else if (
+        input === "@" || input === "!" || input === "?" || input === "#"
+      ) {
         onAddReaction(input);
-      }
-      // Alternative mappings for easier access (optional shortcuts)
-      else if (input === '1' && key.shift) {
-        onAddReaction('!');
-      } else if (input === '2' && key.shift) {
-        onAddReaction('@');
-      } else if (input === '3' && key.shift) {
-        onAddReaction('#');
-      } else if ((input === '/' && key.shift) || input === '?') {
-        onAddReaction('?');
-      }
-      // Easy-to-type number alternatives (without shift)
-      else if (input === '1') {
-        onAddReaction('!');
-      } else if (input === '2') {
-        onAddReaction('@');
-      } else if (input === '3') {
-        onAddReaction('#');
-      } else if (input === '0') {
-        onAddReaction('?');
+      } // Alternative mappings for easier access (optional shortcuts)
+      else if (input === "1" && key.shift) {
+        onAddReaction("!");
+      } else if (input === "2" && key.shift) {
+        onAddReaction("@");
+      } else if (input === "3" && key.shift) {
+        onAddReaction("#");
+      } else if ((input === "/" && key.shift) || input === "?") {
+        onAddReaction("?");
+      } // Easy-to-type number alternatives (without shift)
+      else if (input === "1") {
+        onAddReaction("!");
+      } else if (input === "2") {
+        onAddReaction("@");
+      } else if (input === "3") {
+        onAddReaction("#");
+      } else if (input === "0") {
+        onAddReaction("?");
       }
     }
   });

@@ -1,4 +1,9 @@
-import { getSlackToken, parseSlackUrl, extractWorkspaceUrl, SlackApiClient } from "./lib/index.ts";
+import {
+  extractWorkspaceUrl,
+  getSlackToken,
+  parseSlackUrl,
+  SlackApiClient,
+} from "./lib/index.ts";
 import { renderApp } from "./ui/app.tsx";
 
 export async function main() {
@@ -18,7 +23,7 @@ export async function main() {
     // Parse the Slack URL to extract channel ID and message timestamp
     const { channelId, messageTs } = parseSlackUrl(slackUrl);
 
-    // Extract workspace URL from the Slack URL for cookie authentication  
+    // Extract workspace URL from the Slack URL for cookie authentication
     const workspaceUrl = extractWorkspaceUrl(slackUrl);
 
     // Get Slack authentication token
