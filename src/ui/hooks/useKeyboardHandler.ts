@@ -27,18 +27,24 @@ export function useKeyboardHandler({
       onRemoveLastReaction();
     } else if (key.escape || key.return) {
       onExit();
-    } else if (input && /^[a-zA-Z@!?#]$/.test(input)) {
-      onAddReaction(input);
-    } else if (key.shift) {
-      // Handle shift-based special characters that might not come through as input
-      let specialChar = '';
-      if (key.shift && input === '2') specialChar = '@';
-      else if (key.shift && input === '1') specialChar = '!';
-      else if (key.shift && input === '/') specialChar = '?';
-      else if (key.shift && input === '3') specialChar = '#';
-      
-      if (specialChar) {
-        onAddReaction(specialChar);
+    } else if (input) {
+      // Check for letters first
+      if (/^[a-zA-Z]$/.test(input)) {
+        onAddReaction(input);
+      }
+      // Check for special characters - handle both direct input and common variations
+      else if (input === '@' || input === '!' || input === '?' || input === '#') {
+        onAddReaction(input);
+      }
+      // Alternative mappings for easier access (optional shortcuts)
+      else if (input === '1' && key.shift) {
+        onAddReaction('!');
+      } else if (input === '2' && key.shift) {
+        onAddReaction('@');
+      } else if (input === '3' && key.shift) {
+        onAddReaction('#');
+      } else if ((input === '/' && key.shift) || input === '?') {
+        onAddReaction('?');
       }
     }
   });
