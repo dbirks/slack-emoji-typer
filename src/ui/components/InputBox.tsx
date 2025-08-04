@@ -8,7 +8,7 @@ interface InputBoxProps {
 
 export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
   const getModeLabel = (): string => {
-    return colorMode;
+    return colorMode === "white" ? "white emojis" : "orange emojis";
   };
 
   const getBorderColor = (): string => {
@@ -42,8 +42,8 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
 
       {/* Mode status underneath */}
       <Box marginTop={0}>
-        <Text color="gray" dimColor>
-          ⏵⏵ {getModeLabel()} mode <Text dimColor>(shift+tab to cycle)</Text>
+        <Text color="gray">
+          ⏵⏵ {getModeLabel()} <Text dimColor>(shift+tab to cycle)</Text>
         </Text>
       </Box>
     </Box>
