@@ -1,5 +1,3 @@
-import netrc from "npm:netrc-parser";
-
 export async function getSlackToken(workspaceUrl?: string): Promise<string> {
   // First, try environment variable
   let cookie = Deno.env.get("SLACK_API_COOKIE");
@@ -7,6 +5,8 @@ export async function getSlackToken(workspaceUrl?: string): Promise<string> {
   // If not found, try .netrc file using netrc-parser library
   if (!cookie) {
     try {
+      // Import netrc-parser only when needed to avoid side effects
+      const { default: netrc } = await import("npm:netrc-parser");
       const homeDir = Deno.env.get("HOME") || Deno.env.get("USERPROFILE");
       if (!homeDir) {
         throw new Error("Could not determine home directory");
