@@ -10,7 +10,7 @@
   "tasks": {
     "dev": "deno run --allow-net --allow-env --allow-read --allow-sys main.ts",
     "fmt": "deno fmt",
-    "build": "deno compile --allow-net --allow-env --allow-read=$HOME/.netrc --allow-sys main.ts"
+    "build": "deno compile --allow-net --allow-env --allow-read=$HOME/.netrc,$HOME/.netrc.gpg --allow-sys main.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
