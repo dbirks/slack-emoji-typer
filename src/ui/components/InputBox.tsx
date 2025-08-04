@@ -40,7 +40,7 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
       {/* Mode status underneath */}
       <Box marginTop={0}>
         <Text color="gray" dimColor>
-          ⏵⏵ {getModeLabel()} mode (shift+tab to cycle)
+          ⏵⏵ {getModeLabel()} mode <Text dimColor>(shift+tab to cycle)</Text>
         </Text>
       </Box>
     </Box>
