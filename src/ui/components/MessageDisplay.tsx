@@ -23,7 +23,13 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
   };
 
   return (
-    <Box borderStyle="round" paddingX={3} paddingY={1} marginBottom={1}>
+    <Box
+      borderStyle="round"
+      borderColor="gray"
+      paddingX={3}
+      paddingY={1}
+      marginBottom={1}
+    >
       <Box flexDirection="column">
         <Box>
           <Text color="cyan" bold>{getDisplayName(author)}</Text>
