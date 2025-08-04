@@ -8,21 +8,30 @@ interface MessageDisplayProps {
 
 export function MessageDisplay({ message, author }: MessageDisplayProps) {
   const getDisplayName = (user: SlackUser): string => {
-    // Priority order: display_name > profile.real_name > real_name > first+last > name (username/id)
-    if (user.profile?.display_name) {
-      return user.profile.display_name;
+    // Debug: log the user object to see what fields we have
+    console.log("User object:", JSON.stringify(user, null, 2));
+
+    // Priority order: real_name > profile.real_name > first+last > display_name > name (username/id)
+    if (user.real_name) {
+      console.log("Using real_name:", user.real_name);
+      return user.real_name;
     }
     if (user.profile?.real_name) {
+      console.log("Using profile.real_name:", user.profile.real_name);
       return user.profile.real_name;
-    }
-    if (user.real_name) {
-      return user.real_name;
     }
     if (user.profile?.first_name || user.profile?.last_name) {
       const firstName = user.profile.first_name || "";
       const lastName = user.profile.last_name || "";
-      return `${firstName} ${lastName}`.trim();
+      const fullName = `${firstName} ${lastName}`.trim();
+      console.log("Using first+last name:", fullName);
+      return fullName;
     }
+    if (user.profile?.display_name) {
+      console.log("Using profile.display_name:", user.profile.display_name);
+      return user.profile.display_name;
+    }
+    console.log("Falling back to user.name:", user.name);
     return user.name; // fallback to username/id
   };
 
