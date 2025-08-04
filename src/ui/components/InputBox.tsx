@@ -27,7 +27,7 @@ export function InputBox({ colorMode, typedLetters }: InputBoxProps) {
   return (
     <Box flexDirection="column" marginBottom={1}>
       {/* Input box with border */}
-      <Box borderStyle="single" borderColor={getBorderColor()} paddingX={1}>
+      <Box borderStyle="round" borderColor={getBorderColor()} paddingX={1}>
         <Text color="green">&gt; </Text>
         {typedLetters.map((letter: TypedLetter, index: number) => (
           <Text key={index} color={getLetterColor(letter)} bold>

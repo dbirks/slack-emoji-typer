@@ -186,3 +186,31 @@ On startup, the app automatically:
 - **Binaries**: Cross-platform compilation via GitHub Actions (Linux, macOS
   Intel/ARM, Windows)
 - **Output**: Single binary with embedded dependencies (~22MB with React/Ink)
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Ink Documentation References
+
+When working with Ink React terminal UI components, refer to these sources:
+
+### Primary Documentation
+- **Main Repository**: https://github.com/vadimdemedes/ink - Official Ink repository with API documentation
+- **Ink 3 Features**: https://vadimdemedes.com/posts/ink-3 - Overview of Ink 3 capabilities and improvements
+- **Component Reference**: https://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/ - Comprehensive guide to Ink v3.2.0 components with React, Node.js and TypeScript
+
+### Border Styles & UI Components
+- **Available borderStyle options**: `single`, `double`, `round`, `bold`, `singleDouble`, `doubleSingle`, `classic`
+- **Border colors**: Use `borderColor` prop with any color value (hex, named colors)
+- **Custom borders**: Pass custom border style objects with specific characters for each border segment
+- **Round corners**: Use `borderStyle="round"` for rounded terminal borders
+- **Thick borders**: Use `borderStyle="bold"` for thicker border lines
+
+### Common UI Patterns
+- **Input handling**: `useInput` hook for keyboard events
+- **Focus management**: `useFocus` and `useFocusManager` hooks for tab navigation
+- **Terminal dimensions**: `useStdout` hook for accessing stdout stream
+- **App lifecycle**: `useApp` hook for exit control
