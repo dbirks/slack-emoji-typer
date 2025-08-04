@@ -46,7 +46,7 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
     >
       <Box flexDirection="column">
         <Box>
-          <Text color="cyan" bold>{getDisplayName(author)}</Text>
+          <Text color="whiteBright" bold>{getDisplayName(author)}</Text>
           <Text color="gray">{`  ${formatTime(message.ts)}`}</Text>
         </Box>
         <Box marginTop={1}>
