@@ -8,8 +8,22 @@ interface MessageDisplayProps {
 
 export function MessageDisplay({ message, author }: MessageDisplayProps) {
   const getDisplayName = (user: SlackUser): string => {
-    return user.profile?.display_name || user.profile?.real_name ||
-      user.real_name || user.name;
+    // Priority order: display_name > profile.real_name > real_name > first+last > name (username/id)
+    if (user.profile?.display_name) {
+      return user.profile.display_name;
+    }
+    if (user.profile?.real_name) {
+      return user.profile.real_name;
+    }
+    if (user.real_name) {
+      return user.real_name;
+    }
+    if (user.profile?.first_name || user.profile?.last_name) {
+      const firstName = user.profile.first_name || "";
+      const lastName = user.profile.last_name || "";
+      return `${firstName} ${lastName}`.trim();
+    }
+    return user.name; // fallback to username/id
   };
 
   const formatTime = (timestamp: string): string => {

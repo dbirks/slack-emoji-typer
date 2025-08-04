@@ -14,10 +14,12 @@ export interface SlackMessage {
 export interface SlackUser {
   id: string;
   name: string;
-  real_name: string;
-  profile: {
-    display_name: string;
-    real_name: string;
+  real_name?: string;
+  profile?: {
+    display_name?: string;
+    real_name?: string;
+    first_name?: string;
+    last_name?: string;
   };
 }
 
