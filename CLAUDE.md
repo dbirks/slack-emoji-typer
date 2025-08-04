@@ -11,7 +11,7 @@ code in this repository.
   with a Slack message URL
 - `deno task fmt` - Format all TypeScript/TSX files
 - `deno task build` - Compile to a single Linux binary (for testing builds)
-- `deno check main.ts` - Type check the entire project
+- `deno check src/main.ts` - Type check the entire project
 
 ### Testing & Quality Checks
 
@@ -24,7 +24,8 @@ code in this repository.
 - GitHub Actions handles cross-platform builds automatically on tag push
 - Manual builds: Use `deno compile` with appropriate `--target` flags for
   different platforms
-- Requires permissions: `--allow-net --allow-env --allow-read=$HOME/.netrc`
+- Requires permissions:
+  `--allow-net=slack.com --allow-env=SLACK_TOKEN --allow-read=$HOME/.netrc`
 
 ## Architecture Overview
 
@@ -53,18 +54,18 @@ code in this repository.
 
 - **App** (`app.tsx`): Main orchestrator component using custom hooks
 - **Components** (`components/`): Focused, reusable UI components
-  - `MessageDisplay`: Shows Slack message with author styling
-  - `StatusBar`: Displays current mode and typed letters with colors
+  - `MessageDisplay`: Shows Slack message with author styling and timestamp
+  - `InputBox`: Modern bordered input display with pending state visualization
   - `StatusMessage`: Shows status updates and error messages
   - `HelpText`: Static command help text
 - **Hooks** (`hooks/`): Custom React hooks for state and behavior
-  - `useReactionManager`: Manages emoji reactions, color modes, and API calls
-  - `useKeyboardHandler`: Handles all keyboard input events
+  - `useReactionManager`: Manages emoji reactions, color modes, pending states, and API calls
+  - `useKeyboardHandler`: Handles all keyboard input events including Shift+Tab and Delete/Backspace
 
 **Type Definitions** (`src/types/`):
 
 - `slack.ts`: Slack API response types and interfaces
-- `ui.ts`: UI component types (ColorMode, TypedLetter)
+- `ui.ts`: UI component types (ColorMode, TypedLetter with pending/removing states)
 - `index.ts`: Barrel exports for all types
 
 **Authentication Strategy**:
@@ -108,27 +109,73 @@ To get your Slack session cookie:
 │   ├── lib/             # Core business logic
 │   │   ├── index.ts     # Barrel exports
 │   │   ├── auth.ts      # Authentication utilities
-│   │   ├── slack-api.ts # Slack API client
+│   │   ├── slack-api.ts # Slack API client and reaction parsing
 │   │   └── slack-url.ts # URL parsing utilities
 │   ├── ui/              # User interface components
 │   │   ├── app.tsx      # Main UI orchestrator component
 │   │   ├── components/  # Reusable UI components
 │   │   │   ├── index.ts # Component barrel exports
-│   │   │   ├── MessageDisplay.tsx # Slack message display
-│   │   │   ├── StatusBar.tsx      # Mode and typed letters display
+│   │   │   ├── MessageDisplay.tsx # Slack message display with timestamps
+│   │   │   ├── InputBox.tsx       # Modern input box with pending states
 │   │   │   ├── StatusMessage.tsx  # Status/error messages
 │   │   │   └── HelpText.tsx       # Command help text
 │   │   └── hooks/       # Custom React hooks
 │   │       ├── index.ts           # Hook barrel exports
-│   │       ├── useReactionManager.ts # Reaction state management
-│   │       └── useKeyboardHandler.ts # Keyboard input handling
+│   │       ├── useReactionManager.ts # Reaction state with pending/removing
+│   │       └── useKeyboardHandler.ts # Keyboard input with Shift+Tab
 │   └── types/           # TypeScript type definitions
 │       ├── index.ts     # Barrel exports
-│       ├── slack.ts     # Slack API types
-│       └── ui.ts        # UI component types
+│       ├── slack.ts     # Slack API types with reactions
+│       └── ui.ts        # UI component types with states
 ├── deno.json            # Deno configuration
 └── package.json         # Package metadata
 ```
+
+## UI Architecture & Patterns
+
+### Modern Pending State System
+
+The application implements an elegant pending state system for all user interactions:
+
+**Letter Addition Flow**:
+1. User types letter → Letter appears dimmed immediately (pending: true)
+2. Slack API call executes in background
+3. On success → Letter brightens to normal color (pending: false)
+4. On failure → Letter disappears with error message
+
+**Letter Removal Flow**:
+1. User presses backspace/delete → Last letter dims immediately (removing: true)
+2. Slack API call executes in background  
+3. On success → Letter disappears from UI
+4. On failure → Letter un-dims and stays (removing: false) with error message
+
+### TypedLetter State Management
+
+The `TypedLetter` interface supports multiple states:
+- `pending?: boolean` - Letter is being added to Slack
+- `removing?: boolean` - Letter is being removed from Slack
+- Both states render as dimmed colors in the UI
+
+### Keyboard Handling
+
+- **Shift+Tab**: Toggle color modes (white → orange → alternating → white)
+- **Backspace OR Delete**: Remove last reaction (supports both key types)
+- **Letters A-Z**: Add emoji reactions
+- **Enter/Esc**: Exit application
+
+### Existing Reaction Detection
+
+On startup, the app automatically:
+1. Parses existing alphabet emoji reactions from the Slack message
+2. Reconstructs the typed letter sequence including duplicates
+3. Displays "Found existing letters: XYZ" message for 3 seconds
+4. Allows backspacing through pre-existing reactions
+
+### Color System
+
+- **White letters**: `white` (normal), `gray` (dimmed)
+- **Orange letters**: `#FF8800` (normal), `#CC6600` (dimmed)
+- Visual hierarchy clearly indicates processing state
 
 ### Build & Release
 
