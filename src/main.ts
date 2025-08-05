@@ -2,6 +2,7 @@ import {
   extractWorkspaceUrl,
   getSlackToken,
   parseSlackUrl,
+  resolveUserMentions,
   SlackApiClient,
 } from "./lib/index.ts";
 import { renderApp } from "./ui/app.tsx";
@@ -59,8 +60,24 @@ export async function main() {
       profile: { display_name: message.user, real_name: message.user },
     };
 
+    // Resolve user mentions in the message text
+    const resolvedMessageText = await resolveUserMentions(
+      message.text,
+      slackClient,
+    );
+    const messageWithResolvedMentions = {
+      ...message,
+      text: resolvedMessageText,
+    };
+
     // Render the interactive UI
-    await renderApp(slackClient, channelId, messageTs, message, author);
+    await renderApp(
+      slackClient,
+      channelId,
+      messageTs,
+      messageWithResolvedMentions,
+      author,
+    );
   } catch (error) {
     console.error(
       `❌ Error: ${error instanceof Error ? error.message : String(error)}`,

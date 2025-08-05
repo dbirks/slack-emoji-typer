@@ -92,6 +92,30 @@ export class SlackApiClient {
     }
   }
 
+  async fetchUsers(userIds: string[]): Promise<SlackApiResponse<SlackUser[]>> {
+    try {
+      // Fetch users in parallel
+      const userPromises = userIds.map((userId) => this.fetchUser(userId));
+      const userResults = await Promise.all(userPromises);
+
+      const users: SlackUser[] = [];
+      for (const result of userResults) {
+        if (result.ok && result.data) {
+          users.push(result.data);
+        }
+      }
+
+      return { ok: true, data: users };
+    } catch (error) {
+      return {
+        ok: false,
+        error: `Network error: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
   async addReaction(
     channelId: string,
     messageTs: string,
@@ -175,6 +199,46 @@ export function getEmojiName(
 
   const normalizedChar = symbolMap[letter] || letter.toLowerCase();
   return `${prefix}${normalizedChar}`;
+}
+
+export function extractUserIdsFromText(text: string): string[] {
+  const userMentionRegex = /<@([A-Z0-9]+)>/g;
+  const userIds: string[] = [];
+  let match;
+
+  while ((match = userMentionRegex.exec(text)) !== null) {
+    const userId = match[1];
+    if (!userIds.includes(userId)) {
+      userIds.push(userId);
+    }
+  }
+
+  return userIds;
+}
+
+export async function resolveUserMentions(
+  text: string,
+  slackClient: SlackApiClient,
+): Promise<string> {
+  const userIds = extractUserIdsFromText(text);
+
+  if (userIds.length === 0) {
+    return text;
+  }
+
+  const usersResult = await slackClient.fetchUsers(userIds);
+  if (!usersResult.ok || !usersResult.data) {
+    return text; // Return original text if we can't fetch users
+  }
+
+  let resolvedText = text;
+  for (const user of usersResult.data) {
+    const displayName = user.real_name || user.profile?.real_name || user.name;
+    const userMentionRegex = new RegExp(`<@${user.id}>`, "g");
+    resolvedText = resolvedText.replace(userMentionRegex, `@${displayName}`);
+  }
+
+  return resolvedText;
 }
 
 export function parseExistingAlphabetReactions(
