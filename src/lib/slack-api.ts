@@ -265,9 +265,12 @@ export async function resolveUserMentionsWithColors(
     const displayName = user.real_name || user.profile?.real_name || user.name;
     const userMentionRegex = new RegExp(`<@${user.id}>`, "g");
     const mentionText = `@${displayName}`;
-    
+
     resolvedText = resolvedText.replace(userMentionRegex, mentionText);
-    userColors.set(mentionText, mentionColors[colorIndex % mentionColors.length]);
+    userColors.set(
+      mentionText,
+      mentionColors[colorIndex % mentionColors.length],
+    );
     colorIndex++;
   }
 

@@ -50,7 +50,6 @@ jobs:
           deno compile \
             --allow-net \
             --allow-env \
-            --allow-read=$HOME/.netrc \
             --target x86_64-unknown-linux-gnu \
             --output slack-emoji-typer-test \
             main.ts

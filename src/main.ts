@@ -62,10 +62,11 @@ export async function main() {
     };
 
     // Resolve user mentions in the message text with colors
-    const { text: resolvedMessageText, userColors } = await resolveUserMentionsWithColors(
-      message.text,
-      slackClient,
-    );
+    const { text: resolvedMessageText, userColors } =
+      await resolveUserMentionsWithColors(
+        message.text,
+        slackClient,
+      );
     const messageWithResolvedMentions = {
       ...message,
       text: resolvedMessageText,

@@ -10,8 +10,8 @@ an interactive React-based CLI interface powered by Ink.
 - 🎨 **Multiple emoji styles**: Switch between white, orange, and alternating
   letter emojis
 - ⌨️ **Intuitive controls**: Backspace to undo, Ctrl+T to toggle styles
-- 🔐 **Secure authentication**: Support for environment variables and .netrc
-  files
+- 🔐 **Secure authentication**: Cookie-based authentication with environment
+  variables
 - 📦 **Single binary**: No dependencies to install, just download and run
 - 🌍 **Cross-platform**: Available for Linux, macOS (Intel & Apple Silicon), and
   Windows
@@ -64,14 +64,6 @@ You need a Slack session cookie to use this tool. The cookie should start with
 
 ```bash
 export SLACK_API_COOKIE="xoxd-your-cookie-here"
-```
-
-### Option 2: .netrc File
-
-Add to your `~/.netrc` file:
-
-```
-machine slack.com login xoxd-your-cookie-here
 ```
 
 ### Getting Your Slack Cookie

@@ -44,8 +44,7 @@ code in this repository.
 
 1. **CLI Entry** (`main.ts` → `src/main.ts`): Parses command line args,
    authenticates, fetches message data
-2. **Authentication** (`src/lib/auth.ts`): Handles both environment variables
-   and .netrc file parsing
+2. **Authentication** (`src/lib/auth.ts`): Handles cookie-based authentication
 3. **URL Parsing** (`src/lib/slack-url.ts`): Extracts channel ID and message
    timestamp from Slack URLs
 4. **API Layer** (`src/lib/slack-api.ts`): Manages all Slack Web API

@@ -35,7 +35,6 @@ jobs:
           deno compile \
             --allow-net \
             --allow-env \
-            --allow-read=$HOME/.netrc \
             --target ${{ matrix.target }} \
             --output ${{ matrix.artifact_name }} \
             main.ts

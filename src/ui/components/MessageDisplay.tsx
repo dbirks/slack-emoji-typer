@@ -36,7 +36,10 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
     });
   };
 
-  const renderMessageWithStyledMentions = (text: string, userColors?: Map<string, string>) => {
+  const renderMessageWithStyledMentions = (
+    text: string,
+    userColors?: Map<string, string>,
+  ) => {
     if (!userColors || userColors.size === 0) {
       return <Text>{text}</Text>;
     }
@@ -44,18 +47,21 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
     // Split by exact resolved usernames from the API
     let result = text;
     const parts: Array<{ text: string; color?: string }> = [];
-    
+
     for (const [mention, color] of userColors.entries()) {
-      const regex = new RegExp(`(${mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+      const regex = new RegExp(
+        `(${mention.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+        "g",
+      );
       result = result.replace(regex, `|||${mention}|||`);
     }
-    
-    const splitParts = result.split('|||');
+
+    const splitParts = result.split("|||");
     for (let i = 0; i < splitParts.length; i++) {
       const part = splitParts[i];
       if (userColors.has(part)) {
         parts.push({ text: part, color: userColors.get(part) });
-      } else if (part !== '') {
+      } else if (part !== "") {
         parts.push({ text: part });
       }
     }
