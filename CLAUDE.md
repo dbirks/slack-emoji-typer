@@ -171,7 +171,7 @@ The `TypedLetter` interface supports multiple states:
 ### Keyboard Handling
 
 - **Shift+Tab**: Toggle color modes (white → orange)
-- **Backspace OR Delete**: Remove last reaction (supports both key types)
+- **Backspace**: Remove last reaction
 - **Letters A-Z**: Add emoji reactions
 - **Esc**: Exit application
 

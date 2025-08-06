@@ -115,7 +115,7 @@ Once the interactive mode starts:
 
 - **Letter keys (A-Z)**: Add corresponding emoji reactions
 - **Symbol keys (@!?#)**: Add corresponding symbol emoji reactions
-- **Backspace/Delete**: Remove the last emoji reaction
+- **Backspace**: Remove the last emoji reaction
 - **Shift+Tab**: Toggle emoji color mode (White → Orange)
 - **Esc**: Exit the application
 
