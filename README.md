@@ -35,18 +35,13 @@ reactions - no more tedious clicking through emoji menus!
 
 ## Quick Start
 
-**⚠️ Prerequisites**: Your Slack workspace must have alphabet emoji packs
-installed (`:alphabet-white-a:` through `:alphabet-white-z:` and
-`:alphabet-yellow-a:` through `:alphabet-yellow-z:`). If these don't exist,
-you'll get "invalid_name" errors.
-
 1. **Download** the latest binary for your platform from
    [Releases](../../releases)
 2. **Get your Slack cookie** (see [Authentication](#authentication) below)
 3. **Run** the tool with a Slack message URL:
 
 ```bash
-./slack-emoji-typer "https://yourworkspace.slack.com/archives/C12345678/p1672534987000200"
+slack-emoji-typer "https://yourworkspace.slack.com/archives/C12345678/p1672534987000200"
 ```
 
 ## Installation
@@ -72,8 +67,6 @@ chmod +x slack-emoji-typer-*
 Requirements: [Deno](https://deno.com/) 2.x
 
 ```bash
-git clone https://github.com/your-username/slack-emoji-typer.git
-cd slack-emoji-typer
 deno task build
 ```
 
@@ -82,7 +75,7 @@ deno task build
 You need a Slack session cookie to use this tool. The cookie should start with
 `xoxd-`.
 
-### Option 1: Environment Variable
+### Set Environment Variable
 
 ```bash
 export SLACK_API_COOKIE="xoxd-your-cookie-here"
