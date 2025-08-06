@@ -27,7 +27,7 @@ code in this repository.
 
 ### Testing & Quality Checks
 
-- `deno test --allow-read --allow-env` - Run tests with necessary permissions
+- `deno lint` - Lint TypeScript/TSX files using Deno's built-in linter
 - `deno lint` - Lint TypeScript/TSX files using Deno's built-in linter
 - `deno fmt --check` - Check if files are properly formatted (CI mode)
 
@@ -86,11 +86,7 @@ code in this repository.
 - **Cookie-only authentication**: Uses session cookie to extract token
   dynamically
 - Requires `SLACK_API_COOKIE` environment variable
-- Workspace URL is automatically extracted from the Slack message URL (for
-  archive format)
-- Extracts Slack user tokens (xoxc-*) from workspace pages using session cookie
-- For app.slack.com URLs, `SLACK_WORKSPACE_URL` environment variable is still
-  required
+- Workspace URL is automatically extracted from the Slack message URL
 
 **Cookie Setup**: To get your Slack session cookie:
 
@@ -99,9 +95,6 @@ code in this repository.
 3. Go to Application/Storage → Cookies → your workspace domain
 4. Find the cookie named `d` and copy its value
 5. Set environment variable `SLACK_API_COOKIE=<cookie-value>`
-6. The workspace URL will be automatically extracted from archive-format URLs
-7. For app.slack.com URLs, also set
-   `SLACK_WORKSPACE_URL=https://yourworkspace.slack.com`
 
 ### URL Format Support
 
@@ -113,7 +106,7 @@ code in this repository.
 
 - White letters: `:alphabet-white-a:` through `:alphabet-white-z:`
 - Orange letters: `:alphabet-yellow-a:` through `:alphabet-yellow-z:`
-- Alternating mode cycles between white/orange for each letter
+- Two color modes: white and orange (no alternating mode)
 
 ### Project Structure
 
@@ -177,10 +170,10 @@ The `TypedLetter` interface supports multiple states:
 
 ### Keyboard Handling
 
-- **Shift+Tab**: Toggle color modes (white → orange → alternating → white)
+- **Shift+Tab**: Toggle color modes (white → orange)
 - **Backspace OR Delete**: Remove last reaction (supports both key types)
 - **Letters A-Z**: Add emoji reactions
-- **Enter/Esc**: Exit application
+- **Esc**: Exit application
 
 ### Existing Reaction Detection
 
@@ -199,7 +192,7 @@ On startup, the app automatically:
 
 ### Build & Release
 
-- **CI/CD**: All PRs run format checks, linting, type checking, tests, and build
+- **CI/CD**: All PRs run format checks, linting, type checking, and build
   verification
 - **Release**: Uses release-please for automated versioning based on
   conventional commits
