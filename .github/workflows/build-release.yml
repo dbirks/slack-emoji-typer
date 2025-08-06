@@ -1,0 +1,68 @@
+name: Build and release binaries
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  lint:
+    name: Lint and format check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+      
+      - name: Check formatting
+        run: deno fmt --check
+      
+      - name: Lint code
+        run: deno lint
+      
+      - name: Type check
+        run: deno check src/main.ts
+
+  build-and-upload:
+    name: Build and upload binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            artifact_name: slack-emoji-typer-linux
+          - target: x86_64-pc-windows-msvc
+            artifact_name: slack-emoji-typer-windows.exe
+          - target: x86_64-apple-darwin
+            artifact_name: slack-emoji-typer-macos
+          - target: aarch64-apple-darwin
+            artifact_name: slack-emoji-typer-macos-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: Compile for ${{ matrix.target }}
+        run: |
+          deno compile \
+            --allow-net \
+            --allow-env \
+            --target ${{ matrix.target }} \
+            --output ${{ matrix.artifact_name }} \
+            main.ts
+
+      - name: Upload binary to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} ${{ matrix.artifact_name }} --clobber

@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Test & Lint
+  lint:
+    name: Lint and format check
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
         run: deno check src/main.ts
 
   build:
-    name: Test Build
+    name: Test build
     runs-on: ubuntu-latest
 
     steps:
