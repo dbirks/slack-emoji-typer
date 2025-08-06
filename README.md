@@ -199,8 +199,8 @@ deno task fmt
 # Type-check the entire project
 deno check src/main.ts
 
-# Run tests (if available)
-deno test --allow-read --allow-env
+# Lint code (optional but recommended)
+deno lint
 ```
 
 ### Project Structure
