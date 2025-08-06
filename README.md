@@ -26,7 +26,7 @@ reactions - no more tedious clicking through emoji menus!
 - 🚀 **Interactive typing**: Type letters to add emoji reactions in real-time
 - 🎨 **Multiple emoji styles**: Switch between white, orange, and alternating
   letter emojis
-- ⌨️ **Intuitive controls**: Backspace to undo, Ctrl+T to toggle styles
+- ⌨️ **Intuitive controls**: Backspace to undo, Shift+Tab to toggle styles
 - 🔐 **Secure authentication**: Cookie-based authentication with environment
   variables
 - 📦 **Single binary**: No dependencies to install, just download and run
@@ -34,6 +34,8 @@ reactions - no more tedious clicking through emoji menus!
   Windows
 
 ## Quick Start
+
+**⚠️ Prerequisites**: Your Slack workspace must have alphabet emoji packs installed (`:alphabet-white-a:` through `:alphabet-white-z:` and `:alphabet-yellow-a:` through `:alphabet-yellow-z:`). If these don't exist, you'll get "invalid_name" errors.
 
 1. **Download** the latest binary for your platform from
    [Releases](../../releases)
@@ -64,7 +66,7 @@ chmod +x slack-emoji-typer-*
 
 ### Build from Source
 
-Requirements: [Deno](https://deno.com/) 1.x
+Requirements: [Deno](https://deno.com/) 2.x
 
 ```bash
 git clone https://github.com/your-username/slack-emoji-typer.git
@@ -101,44 +103,22 @@ export SLACK_API_COOKIE="xoxd-your-cookie-here"
 slack-emoji-typer "https://yourworkspace.slack.com/archives/C12345678/p1672534987000200"
 ```
 
+**Getting a Slack message URL**: Right-click on any Slack message and select "Copy link", then use the copied URL with this tool.
+
 ### Controls
 
 Once the interactive mode starts:
 
 - **Letter keys (A-Z)**: Add corresponding emoji reactions
 - **Symbol keys (@!?#)**: Add corresponding symbol emoji reactions
-- **Backspace**: Remove the last emoji reaction
-- **Ctrl+T**: Toggle emoji color mode (White → Orange → Alternating → White)
-- **Enter/Esc**: Exit the application
-- **Backspace on empty**: Exit the application
+- **Backspace/Delete**: Remove the last emoji reaction
+- **Shift+Tab**: Toggle emoji color mode (White → Orange)
+- **Esc**: Exit the application
 
 ### Color Modes
 
 - **White**: Uses `:alphabet-white-a:`, `:alphabet-white-b:`, etc.
 - **Orange**: Uses `:alphabet-yellow-a:`, `:alphabet-yellow-b:`, etc.
-- **Alternating**: Alternates between white and orange for each letter
-
-## URL Formats
-
-The tool supports these Slack message URL formats:
-
-### Archives Format (most common)
-
-```
-https://yourworkspace.slack.com/archives/C12345678/p1672534987000200
-```
-
-### Client Format
-
-```
-https://app.slack.com/client/T12345/C12345678/messageId
-```
-
-To get a message URL:
-
-1. Right-click on any Slack message
-2. Select "Copy link"
-3. Use the copied URL with this tool
 
 ## Technology Stack
 
@@ -179,20 +159,6 @@ This project leverages modern web technologies adapted for the command line:
 
 ## Requirements
 
-### Slack Workspace Setup
-
-Your Slack workspace must have alphabet emoji packs installed. The tool looks
-for emojis named:
-
-- `:alphabet-white-a:` through `:alphabet-white-z:`
-- `:alphabet-yellow-a:` through `:alphabet-yellow-z:`
-- `:alphabet-white-at:`, `:alphabet-white-exclamation:`,
-  `:alphabet-white-question:`, `:alphabet-white-hash:`
-- `:alphabet-yellow-at:`, `:alphabet-yellow-exclamation:`,
-  `:alphabet-yellow-question:`, `:alphabet-yellow-hash:`
-
-If these emojis don't exist, you'll get "invalid_name" errors.
-
 ### Permissions
 
 You need:
@@ -205,7 +171,7 @@ You need:
 
 ### Prerequisites
 
-- [Deno](https://deno.com/) 1.x
+- [Deno](https://deno.com/) 2.x
 - A Slack workspace with alphabet emoji packs
 
 ### Setup
