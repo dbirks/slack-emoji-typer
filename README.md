@@ -1,8 +1,25 @@
 # Slack Emoji Typer 🎉
 
-A cross-platform CLI tool that lets you add letter-reaction emoji to Slack
-messages by typing on your keyboard. Built with Deno and TypeScript, featuring
-an interactive React-based CLI interface powered by Ink.
+A cross-platform CLI tool that transforms your keyboard into an emoji reaction
+machine for Slack messages. Type letters to instantly add alphabet emoji
+reactions to any Slack message, with real-time visual feedback and intuitive
+controls.
+
+Perfect for spelling out words, names, or messages using Slack's alphabet emoji
+reactions - no more tedious clicking through emoji menus!
+
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Authentication](#authentication)
+- [Usage](#usage)
+- [Technology Stack](#technology-stack)
+- [Requirements](#requirements)
+- [Development](#development)
+- [Error Handling](#error-handling)
+- [Contributing](#contributing)
 
 ## Features
 
@@ -123,6 +140,43 @@ To get a message URL:
 2. Select "Copy link"
 3. Use the copied URL with this tool
 
+## Technology Stack
+
+This project leverages modern web technologies adapted for the command line:
+
+### Core Runtime
+
+- **[Deno](https://deno.com/)** - Modern JavaScript/TypeScript runtime with
+  built-in security, native TypeScript support, and comprehensive toolchain
+  (linter, formatter, test runner)
+- **TypeScript** - Type-safe development with zero configuration needed
+
+### User Interface
+
+- **[React](https://react.dev/)** - Component-based UI architecture using
+  familiar hooks and patterns
+- **[Ink](https://github.com/vadimdemedes/ink)** - React renderer for terminal
+  interfaces, enabling rich CLI experiences with Flexbox layouts and CSS-like
+  styling
+
+### Architecture
+
+- **Component-based design** - Modular UI components (MessageDisplay, InputBox,
+  StatusMessage)
+- **Custom React hooks** - `useKeyboardHandler` for input management,
+  `useReactionManager` for Slack API interactions
+- **Type-safe API layer** - Strongly-typed Slack API client with comprehensive
+  error handling
+- **Cookie-based authentication** - Secure session-based auth without requiring
+  bot tokens
+
+### Build & Distribution
+
+- **Single binary compilation** - Zero-dependency executables for all platforms
+- **Cross-platform builds** - Automated CI/CD with GitHub Actions
+- **Automated releases** - Conventional commits with release-please for version
+  management
+
 ## Requirements
 
 ### Slack Workspace Setup
@@ -159,39 +213,74 @@ You need:
 ```bash
 git clone https://github.com/your-username/slack-emoji-typer.git
 cd slack-emoji-typer
+
+# Set up your Slack cookie for testing
+export SLACK_API_COOKIE="xoxd-your-cookie-here"
 ```
 
-### Run in Development
+### Available Commands
 
 ```bash
+# Run in development mode with a Slack message URL
 deno task dev "https://your-slack-message-url"
-```
 
-### Build
-
-```bash
+# Build the project (creates binary)  
 deno task build
-```
 
-### Format Code
-
-```bash
+# Format code with Deno's built-in formatter
 deno task fmt
+
+# Type-check the entire project
+deno check src/main.ts
+
+# Run tests (if available)
+deno test --allow-read --allow-env
 ```
 
 ### Project Structure
 
 ```
-├── main.ts           # CLI entry point
-├── app.tsx           # Interactive UI components (Ink/React)
-├── auth.ts           # Authentication handling
-├── slack-api.ts      # Slack API client
-├── slack-url.ts      # URL parsing utilities
-├── deno.json         # Deno configuration
-├── package.json      # Package metadata for release-please
+slack-emoji-typer/
+├── main.ts                      # Root CLI entry point
+├── src/
+│   ├── main.ts                  # Core application logic  
+│   ├── lib/                     # Business logic layer
+│   │   ├── auth.ts              # Cookie-based authentication
+│   │   ├── slack-api.ts         # Slack API client & reactions
+│   │   ├── slack-url.ts         # URL parsing utilities
+│   │   └── index.ts             # Library exports
+│   ├── ui/                      # React/Ink interface layer
+│   │   ├── app.tsx              # Main UI orchestrator
+│   │   ├── components/          # Reusable UI components
+│   │   │   ├── MessageDisplay.tsx   # Slack message display
+│   │   │   ├── InputBox.tsx         # Typed input visualization  
+│   │   │   ├── StatusMessage.tsx    # Status & error messages
+│   │   │   └── HelpText.tsx         # Command help display
+│   │   └── hooks/               # Custom React hooks
+│   │       ├── useKeyboardHandler.ts    # Input event handling
+│   │       └── useReactionManager.ts    # Slack API interactions
+│   └── types/                   # TypeScript definitions
+│       ├── slack.ts             # Slack API types
+│       └── ui.ts                # UI component types
+├── deno.json                    # Deno configuration & tasks
+├── package.json                 # Package metadata for releases
 └── .github/
-    └── workflows/    # CI/CD automation
+    └── workflows/               # CI/CD automation
+        ├── ci.yml               # Pull request checks
+        ├── release.yml          # Binary builds & releases  
+        └── release-please.yml   # Automated version management
 ```
+
+### Development Workflow
+
+1. **Make changes** to source files in `src/`
+2. **Test locally** with `deno task dev <slack-url>`
+3. **Format code** with `deno task fmt`
+4. **Build & verify** with `deno task build`
+5. **Commit using conventional commits** (e.g., `feat:`, `fix:`, `docs:`)
+
+The compiled binary will be created as `./slack-emoji-typer` and includes all
+dependencies.
 
 ## Error Handling
 
