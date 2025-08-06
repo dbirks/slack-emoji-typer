@@ -1,36 +1,16 @@
-name: Build and release binaries
+name: Build and upload binaries
 
 on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
-  lint:
-    name: Lint and format check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v2.x
-
-      - name: Check formatting
-        run: deno fmt --check
-
-      - name: Lint code
-        run: deno lint
-
-      - name: Type check
-        run: deno check src/main.ts
-
   build-and-upload:
     name: Build and upload binaries
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     strategy:
       matrix:
         include:

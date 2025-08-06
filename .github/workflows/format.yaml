@@ -1,6 +1,8 @@
-name: Auto-format
+name: Format and lint
 
 on:
+  push:
+    branches: ["*"]
   pull_request:
     types: [opened, synchronize]
 
@@ -8,22 +10,30 @@ permissions:
   contents: write
 
 jobs:
-  auto-format:
-    name: Auto format code
+  format-lint:
+    name: Format and lint code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # A full checkout to help us push up possible changes from `deno fmt`
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v2.x
+
+      - name: Check formatting
+        run: deno fmt --check
+
+      - name: Lint code
+        run: deno lint
+
+      - name: Type check
+        run: deno check src/main.ts
 
       - name: Format code
         run: deno fmt
@@ -38,7 +48,7 @@ jobs:
           fi
 
       - name: Commit and push changes
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
