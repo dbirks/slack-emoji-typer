@@ -35,7 +35,10 @@ reactions - no more tedious clicking through emoji menus!
 
 ## Quick Start
 
-**⚠️ Prerequisites**: Your Slack workspace must have alphabet emoji packs installed (`:alphabet-white-a:` through `:alphabet-white-z:` and `:alphabet-yellow-a:` through `:alphabet-yellow-z:`). If these don't exist, you'll get "invalid_name" errors.
+**⚠️ Prerequisites**: Your Slack workspace must have alphabet emoji packs
+installed (`:alphabet-white-a:` through `:alphabet-white-z:` and
+`:alphabet-yellow-a:` through `:alphabet-yellow-z:`). If these don't exist,
+you'll get "invalid_name" errors.
 
 1. **Download** the latest binary for your platform from
    [Releases](../../releases)
@@ -103,7 +106,8 @@ export SLACK_API_COOKIE="xoxd-your-cookie-here"
 slack-emoji-typer "https://yourworkspace.slack.com/archives/C12345678/p1672534987000200"
 ```
 
-**Getting a Slack message URL**: Right-click on any Slack message and select "Copy link", then use the copied URL with this tool.
+**Getting a Slack message URL**: Right-click on any Slack message and select
+"Copy link", then use the copied URL with this tool.
 
 ### Controls
 

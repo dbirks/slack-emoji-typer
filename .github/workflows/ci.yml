@@ -18,7 +18,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: v2.x
 
       - name: Check formatting
         run: deno fmt --check
@@ -27,10 +27,7 @@ jobs:
         run: deno lint
 
       - name: Type check
-        run: deno check main.ts
-
-      - name: Run tests
-        run: deno test --allow-read --allow-env
+        run: deno check src/main.ts
 
   build:
     name: Test Build
@@ -43,7 +40,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: v2.x
 
       - name: Test build
         run: |

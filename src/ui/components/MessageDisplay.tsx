@@ -48,7 +48,7 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
     let result = text;
     const parts: Array<{ text: string; color?: string }> = [];
 
-    for (const [mention, color] of userColors.entries()) {
+    for (const [mention, _color] of userColors.entries()) {
       const regex = new RegExp(
         `(${mention.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
         "g",

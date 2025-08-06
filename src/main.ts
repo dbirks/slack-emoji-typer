@@ -2,7 +2,6 @@ import {
   extractWorkspaceUrl,
   getSlackToken,
   parseSlackUrl,
-  resolveUserMentions,
   resolveUserMentionsWithColors,
   SlackApiClient,
 } from "./lib/index.ts";
