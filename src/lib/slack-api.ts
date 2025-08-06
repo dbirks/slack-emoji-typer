@@ -241,6 +241,39 @@ export async function resolveUserMentions(
   return resolvedText;
 }
 
+export async function resolveUserMentionsWithColors(
+  text: string,
+  slackClient: SlackApiClient,
+): Promise<{ text: string; userColors: Map<string, string> }> {
+  const userIds = extractUserIdsFromText(text);
+
+  if (userIds.length === 0) {
+    return { text, userColors: new Map() };
+  }
+
+  const usersResult = await slackClient.fetchUsers(userIds);
+  if (!usersResult.ok || !usersResult.data) {
+    return { text, userColors: new Map() }; // Return original text if we can't fetch users
+  }
+
+  const mentionColors = ["#5B9BD5"]; // just blue
+  const userColors = new Map<string, string>();
+  let resolvedText = text;
+  let colorIndex = 0;
+
+  for (const user of usersResult.data) {
+    const displayName = user.real_name || user.profile?.real_name || user.name;
+    const userMentionRegex = new RegExp(`<@${user.id}>`, "g");
+    const mentionText = `@${displayName}`;
+    
+    resolvedText = resolvedText.replace(userMentionRegex, mentionText);
+    userColors.set(mentionText, mentionColors[colorIndex % mentionColors.length]);
+    colorIndex++;
+  }
+
+  return { text: resolvedText, userColors };
+}
+
 export function parseExistingAlphabetReactions(
   reactions: SlackReaction[],
 ): TypedLetter[] {

@@ -5,6 +5,7 @@ export {
   getEmojiName,
   parseExistingAlphabetReactions,
   resolveUserMentions,
+  resolveUserMentionsWithColors,
   SlackApiClient,
 } from "./slack-api.ts";
 export { extractWorkspaceUrl, parseSlackUrl } from "./slack-url.ts";

@@ -2,7 +2,7 @@ import { Box, Text } from "ink";
 import type { SlackMessage, SlackUser } from "../../types/index.ts";
 
 interface MessageDisplayProps {
-  message: SlackMessage;
+  message: SlackMessage & { userColors?: Map<string, string> };
   author: SlackUser;
 }
 
@@ -36,6 +36,46 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
     });
   };
 
+  const renderMessageWithStyledMentions = (text: string, userColors?: Map<string, string>) => {
+    if (!userColors || userColors.size === 0) {
+      return <Text>{text}</Text>;
+    }
+
+    // Split by exact resolved usernames from the API
+    let result = text;
+    const parts: Array<{ text: string; color?: string }> = [];
+    
+    for (const [mention, color] of userColors.entries()) {
+      const regex = new RegExp(`(${mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+      result = result.replace(regex, `|||${mention}|||`);
+    }
+    
+    const splitParts = result.split('|||');
+    for (let i = 0; i < splitParts.length; i++) {
+      const part = splitParts[i];
+      if (userColors.has(part)) {
+        parts.push({ text: part, color: userColors.get(part) });
+      } else if (part !== '') {
+        parts.push({ text: part });
+      }
+    }
+
+    return (
+      <Text>
+        {parts.map((part, index) => {
+          if (part.color) {
+            return (
+              <Text key={index} color={part.color}>
+                {part.text}
+              </Text>
+            );
+          }
+          return part.text;
+        })}
+      </Text>
+    );
+  };
+
   return (
     <Box
       borderStyle="round"
@@ -50,7 +90,7 @@ export function MessageDisplay({ message, author }: MessageDisplayProps) {
           <Text color="gray">{`  ${formatTime(message.ts)}`}</Text>
         </Box>
         <Box marginTop={1}>
-          <Text>{message.text}</Text>
+          {renderMessageWithStyledMentions(message.text, message.userColors)}
         </Box>
       </Box>
     </Box>

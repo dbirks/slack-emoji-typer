@@ -3,6 +3,7 @@ import {
   getSlackToken,
   parseSlackUrl,
   resolveUserMentions,
+  resolveUserMentionsWithColors,
   SlackApiClient,
 } from "./lib/index.ts";
 import { renderApp } from "./ui/app.tsx";
@@ -60,14 +61,15 @@ export async function main() {
       profile: { display_name: message.user, real_name: message.user },
     };
 
-    // Resolve user mentions in the message text
-    const resolvedMessageText = await resolveUserMentions(
+    // Resolve user mentions in the message text with colors
+    const { text: resolvedMessageText, userColors } = await resolveUserMentionsWithColors(
       message.text,
       slackClient,
     );
     const messageWithResolvedMentions = {
       ...message,
       text: resolvedMessageText,
+      userColors,
     };
 
     // Render the interactive UI
