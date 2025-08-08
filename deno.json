@@ -1,6 +1,6 @@
 {
   "name": "slack-emoji-typer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "exports": "./main.ts",
   "compilerOptions": {
     "jsx": "react-jsx",

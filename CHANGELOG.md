@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.2.0](https://github.com/dbirks/slack-emoji-typer/compare/v0.1.0...v0.2.0) (2025-08-08)
+
+
+### Features
+
+* upgrade to React 19 and Ink 6.1 with latest dependencies ([ee00e38](https://github.com/dbirks/slack-emoji-typer/commit/ee00e380456db9fa0189d4be421f890d02fbcb36))
+
+
+### Bug Fixes
+
+* handle backspace key detection across different terminals ([5532d19](https://github.com/dbirks/slack-emoji-typer/commit/5532d19b65cf6e73f8d9fab05e7c5c2b2ee43163))
+
+
+### Documentation
+
+* add centered demo GIF and update README title ([fb0146e](https://github.com/dbirks/slack-emoji-typer/commit/fb0146e7e745c7d71099c1f8d11f0d811eed6508))
+* Slight visual tweaks to readme ([a941f46](https://github.com/dbirks/slack-emoji-typer/commit/a941f46188229af24d9e332d4e72eabbe4e2e1e6))
+* update project structure tree to match current codebase ([25aa480](https://github.com/dbirks/slack-emoji-typer/commit/25aa4807a11e6655d044b29387dc5ac4ac4c43fa))
+* Update readme a fair amount ([98f1644](https://github.com/dbirks/slack-emoji-typer/commit/98f1644f0a7fd5a174e7f1f187e8e6fd66299908))
+
+
+### Styles
+
+* auto-format code with deno fmt ([91578db](https://github.com/dbirks/slack-emoji-typer/commit/91578db54a1f5827fc82b47ee3199c1217737adf))
+
+
+### Continuous Integration
+
+* update renovate config with rate limiting and grouping options ([027a317](https://github.com/dbirks/slack-emoji-typer/commit/027a317407071dc3b0b1f7b9dabb7d6ae7536765))
+
 ## [0.1.0](https://github.com/dbirks/slack-emoji-typer/compare/v0.0.1...v0.1.0) (2025-08-06)
 
 ### Features
