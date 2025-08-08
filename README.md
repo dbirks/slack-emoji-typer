@@ -23,29 +23,28 @@ feedback and wonderfully remarkably intuitive controls.
 
 ## Table of Contents
 
-- [slack-emoji-typer](#slack-emoji-typer)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Quick Start](#quick-start)
-  - [Installation](#installation)
-    - [Download Binary](#download-binary)
-    - [Build from Source](#build-from-source)
-  - [Authentication](#authentication)
-    - [Set Environment Variable](#set-environment-variable)
-    - [Getting Your Slack Cookie](#getting-your-slack-cookie)
-  - [Usage](#usage)
-    - [Basic Usage](#basic-usage)
-    - [Controls](#controls)
-    - [Color Modes](#color-modes)
-  - [Technology Stack](#technology-stack)
-    - [Core Runtime](#core-runtime)
-    - [User Interface](#user-interface)
-  - [Development](#development)
-    - [Prerequisites](#prerequisites)
-    - [Available Commands](#available-commands)
-    - [Project Structure](#project-structure)
-  - [Release Process](#release-process)
-  - [Changelog](#changelog)
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+  - [Download Binary](#download-binary)
+  - [Build from Source](#build-from-source)
+- [Authentication](#authentication)
+  - [Set Environment Variable](#set-environment-variable)
+  - [Getting Your Slack Cookie](#getting-your-slack-cookie)
+- [Usage](#usage)
+  - [Basic Usage](#basic-usage)
+  - [Controls](#controls)
+  - [Color Modes](#color-modes)
+- [Technology Stack](#technology-stack)
+  - [Core Runtime](#core-runtime)
+  - [User Interface](#user-interface)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Available Commands](#available-commands)
+  - [Project Structure](#project-structure)
+- [Release Process](#release-process)
+- [Changelog](#changelog)
 
 ## Features
 
@@ -185,6 +184,8 @@ deno lint
 ```
 slack-emoji-typer/
 ├── main.ts                      # Root CLI entry point
+├── CHANGELOG.md                 # Version history and release notes
+├── README.md                    # Project documentation
 ├── src/
 │   ├── main.ts                  # Core application logic  
 │   ├── lib/                     # Business logic layer
@@ -198,20 +199,24 @@ slack-emoji-typer/
 │   │   │   ├── MessageDisplay.tsx   # Slack message display
 │   │   │   ├── InputBox.tsx         # Typed input visualization  
 │   │   │   ├── StatusMessage.tsx    # Status & error messages
-│   │   │   └── HelpText.tsx         # Command help display
+│   │   │   ├── StatusBar.tsx        # Status bar component
+│   │   │   ├── HelpText.tsx         # Command help display
+│   │   │   └── index.ts             # Component exports
 │   │   └── hooks/               # Custom React hooks
 │   │       ├── useKeyboardHandler.ts    # Input event handling
-│   │       └── useReactionManager.ts    # Slack API interactions
+│   │       ├── useReactionManager.ts    # Slack API interactions
+│   │       └── index.ts             # Hook exports
 │   └── types/                   # TypeScript definitions
 │       ├── slack.ts             # Slack API types
-│       └── ui.ts                # UI component types
+│       ├── ui.ts                # UI component types
+│       └── index.ts             # Type exports
 ├── deno.json                    # Deno configuration & tasks
-├── package.json                 # Package metadata for releases
+├── deno.lock                    # Deno dependency lock file
 └── .github/
     └── workflows/               # CI/CD automation
-        ├── ci.yml               # Pull request checks
-        ├── release.yml          # Binary builds & releases  
-        └── release-please.yml   # Automated version management
+        ├── build-upload.yml     # Build and upload binaries
+        ├── format.yaml          # Code formatting checks
+        └── release-please.yaml  # Automated version management
 ```
 
 ## Release Process
