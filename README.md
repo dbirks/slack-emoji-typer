@@ -7,13 +7,17 @@
 </div>
 <br />
 
-Have you ever wanted to be annoying in Slack and spell out whole words using the alphabet emojis, but found it too tiresome to click through the emoji menus over and over? Oh wait, never? 😅
+Have you ever wanted to be annoying in Slack and spell out whole words using the
+alphabet emojis, but found it too tiresome to click through the emoji menus over
+and over? Oh wait, never? 😅
 
 <div align="center">
 Introducing: 🎺 `slack-emoji-typer` 🎺
 </div>
 
-Now you can type letters on your keyboard to instantly add alphabet emoji reactions to any Slack message, with amazingly incredible real-time visual feedback and wonderfully remarkably intuitive controls.
+Now you can type letters on your keyboard to instantly add alphabet emoji
+reactions to any Slack message, with amazingly incredible real-time visual
+feedback and wonderfully remarkably intuitive controls.
 
 ## Table of Contents
 
@@ -223,5 +227,6 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ---
 
-**Note**: This tool is unofficial and definitely not affiliated with Slack Technologies.
-Use responsibly and in accordance with your organization's Slack policies.
+**Note**: This tool is unofficial and definitely not affiliated with Slack
+Technologies. Use responsibly and in accordance with your organization's Slack
+policies.
