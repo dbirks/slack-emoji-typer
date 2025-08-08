@@ -18,13 +18,25 @@ export function useKeyboardHandler({
   useInput((input, key) => {
     if (isProcessing) return;
 
+    // Handle special keys first, regardless of input value
     if (key.shift && key.tab) {
       onToggleColorMode();
-    } else if (key.backspace) {
+      return;
+    }
+
+    // Handle backspace (can be detected as either backspace or delete depending on terminal)
+    if (key.backspace || key.delete) {
       onRemoveLastReaction();
-    } else if (key.escape) {
+      return;
+    }
+
+    if (key.escape) {
       onExit();
-    } else if (input) {
+      return;
+    }
+
+    // Handle regular character input only if no special keys were pressed
+    if (input && !key.backspace && !key.escape && !(key.shift && key.tab)) {
       // Check for letters and symbols
       if (/^[a-zA-Z@!?#]$/.test(input)) {
         onAddReaction(input);
