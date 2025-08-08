@@ -1,9 +1,15 @@
-# Slack Emoji Typer 🎉
+<div align="center">
+
+# slack-emoji-typer
+
+<img src="docs/recording.gif" alt="slack-emoji-typer demo" width="800">
 
 A cross-platform CLI tool that transforms your keyboard into an emoji reaction
 machine for Slack messages. Type letters to instantly add alphabet emoji
 reactions to any Slack message, with real-time visual feedback and intuitive
 controls.
+
+</div>
 
 Perfect for spelling out words, names, or messages using Slack's alphabet emoji
 reactions - no more tedious clicking through emoji menus!
