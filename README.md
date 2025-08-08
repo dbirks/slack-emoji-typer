@@ -15,7 +15,9 @@ and over? Oh wait, never? 😅
 
 Introducing: 🎺 <b>slack-emoji-typer</b> 🎺
 
-Now you can type letters on your keyboard to instantly add alphabet emojis to any Slack message. You can also use `Backspace` to remove emoji, and use `Shift + Tab` to cycle through white and orange letters. Such a time saver!
+Now you can type letters on your keyboard to instantly add alphabet emojis to
+any Slack message. You can also use `Backspace` to remove emoji, and use
+`Shift + Tab` to cycle through white and orange letters. Such a time saver!
 
 </div>
 
