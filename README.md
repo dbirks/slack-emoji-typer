@@ -1,24 +1,25 @@
 <div align="center">
 
-# slack-emoji-typer
+<h1>slack-emoji-typer</h1>
 
 <img src="docs/recording.gif" alt="slack-emoji-typer demo" width="800">
 
-<br />
 </div>
+<hr />
+
+<div align="center">
 
 Have you ever wanted to be annoying in Slack and spell out whole words using the
 alphabet emojis, but found it too tiresome to click through the emoji menus over
 and over? Oh wait, never? 😅
 
-<div align="center">
 Introducing: 🎺 <b>slack-emoji-typer</b> 🎺
-<br />
-</div>
 
 Now you can type letters on your keyboard to instantly add alphabet emoji
 reactions to any Slack message, with amazingly incredible real-time visual
 feedback and wonderfully remarkably intuitive controls.
+
+</div>
 
 ## Table of Contents
 
